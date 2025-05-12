@@ -1,0 +1,39 @@
+{
+    "name": "张三 (Zhang San)",
+    "age": 30,
+    "height_meters": 1.75,
+    "isStudent": false,
+    "email": "zhangsan@example.com",
+    "middleName": null,
+    "address": {
+      "street": "人民路123号 (Renmin Road No. 123)",
+      "city": "示例市 (Sample City)",
+      "zipCode": "100000",
+      "isPrimary": true
+    },
+    "hobbies": [
+      "编程 (Programming)",
+      "阅读 (Reading)",
+      "旅行 (Traveling)"
+    ],
+    "scores": [95, 88, 72.5],
+    "projects": [
+      {
+        "projectName": "项目Alpha (Project Alpha)",
+        "status": "已完成 (Completed)",
+        "budget": 50000.75,
+        "isActive": true
+      },
+      {
+        "projectName": "项目Beta (Project Beta)",
+        "status": "进行中 (In Progress)",
+        "budget": 120000,
+        "isActive": true,
+        "deadline": null
+      }
+    ],
+    "metadata": {
+        "version": 1.2,
+        "tags": ["data", "example"]
+    }
+  }
