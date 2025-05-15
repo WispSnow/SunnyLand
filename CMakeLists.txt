@@ -29,7 +29,10 @@ find_package(nlohmann_json REQUIRED)
 find_package(spdlog REQUIRED)
 
 # 添加可执行文件
-add_executable(${TARGET} main.cpp)
+add_executable(${TARGET} 
+                src/main.cpp
+                src/engine/core/game_app.cpp
+                )
 
 # 链接库
 target_link_libraries(${TARGET}
