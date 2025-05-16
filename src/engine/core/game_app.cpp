@@ -1,10 +1,13 @@
 #include "game_app.h"
+#include "time.h"
 #include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
 
 namespace engine::core {
 
-GameApp::GameApp() = default;
+GameApp::GameApp() {
+    time_ = std::make_unique<Time>();
+}
 
 GameApp::~GameApp() {
     if (is_running_) {
@@ -18,12 +21,16 @@ void GameApp::run() {
         spdlog::error("初始化失败，无法运行游戏。");
         return;
     }
-
+    time_->setTargetFps(144);       // 设置目标帧率（临时，未来会从配置文件读取）
     while (is_running_) {
-        float delta_time = 0.01f; // 每帧的时间间隔（临时设定）
+        time_->update();
+        float delta_time = time_->getDeltaTime();
+
         handleEvents();
         update(delta_time);
         render();
+
+        // spdlog::info("delta_time: {}", delta_time);
     }
 
     close();
