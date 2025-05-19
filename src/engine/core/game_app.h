@@ -5,6 +5,10 @@
 struct SDL_Window;
 struct SDL_Renderer;
 
+namespace engine::resource {
+class ResourceManager;
+}
+
 namespace engine::core {        // 命名空间的最佳实践：与文件路径一致
 class Time;
 
@@ -19,6 +23,7 @@ private:
 
     // 引擎组件
     std::unique_ptr<engine::core::Time> time_;
+    std::unique_ptr<engine::resource::ResourceManager> resource_manager_;
 
 public:
     GameApp();
@@ -41,6 +46,14 @@ private:
     void update(float delta_time);
     void render();
     void close();
+
+    // 各模块的初始化/创建函数，在init()中调用
+    bool initSDL();
+    bool initTime();
+    bool initResourceManager();
+
+    // 测试用函数
+    void testResourceManager();
 };
 
 } // namespace engine::core
