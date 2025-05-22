@@ -48,8 +48,8 @@ void InputManager::processEvent(const SDL_Event& event) {
             bool is_down = event.key.down; 
             bool is_repeat = event.key.repeat;
 
-            auto it = scancode_to_actions_map_.find(scancode);
-            if (it != scancode_to_actions_map_.end()) {     // 如果按键有对应的action
+            auto it = input_to_actions_map_.find(scancode);
+            if (it != input_to_actions_map_.end()) {     // 如果按键有对应的action
                 const std::vector<std::string>& associated_actions = it->second;
                 for (const std::string& action_name : associated_actions) {
                     updateActionState(action_name, is_down, is_repeat); // 更新action状态
@@ -59,10 +59,10 @@ void InputManager::processEvent(const SDL_Event& event) {
         }
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
         case SDL_EVENT_MOUSE_BUTTON_UP: {
-            Uint8 button = event.button.button;              // 获取鼠标按钮
+            Uint32 button = event.button.button;              // 获取鼠标按钮
             bool is_down = event.button.down;
-            auto it = mouse_button_to_actions_map_.find(button);
-            if (it != mouse_button_to_actions_map_.end()) {     // 如果鼠标按钮有对应的action
+            auto it = input_to_actions_map_.find(button);
+            if (it != input_to_actions_map_.end()) {     // 如果鼠标按钮有对应的action
                 const std::vector<std::string>& associated_actions = it->second;
                 for (const std::string& action_name : associated_actions) {
                     // 鼠标事件不考虑repeat, 所以第三个参数传false
@@ -139,8 +139,7 @@ void InputManager::initializeMappings(const engine::core::Config* config) {
         throw std::runtime_error("输入管理器: Config 为空指针");
     }
     actions_to_keyname_map_ = config->input_mappings_;      // 获取配置中的输入映射（动作 -> 按键名称）
-    scancode_to_actions_map_.clear();
-    mouse_button_to_actions_map_.clear();
+    input_to_actions_map_.clear();
     action_states_.clear();
 
     // 如果配置中没有定义鼠标按钮动作(通常不需要配置),则添加默认映射, 用于 UI
@@ -160,14 +159,14 @@ void InputManager::initializeMappings(const engine::core::Config* config) {
         // 设置 "按键 -> 动作" 的映射
         for (const std::string& key_name : key_names) {
             SDL_Scancode scancode = scancodeFromString(key_name);       // 尝试根据按键名称获取scancode
-            Uint8 mouse_button = mouseButtonUint8FromString(key_name);  // 尝试根据按键名称获取鼠标按钮
+            Uint32 mouse_button = mouseButtonFromString(key_name);  // 尝试根据按键名称获取鼠标按钮
             // 未来可添加其它输入类型 ...
 
             if (scancode != SDL_SCANCODE_UNKNOWN) {      // 如果scancode有效,则将action添加到scancode_to_actions_map_中
-                scancode_to_actions_map_[scancode].push_back(action_name);     
+                input_to_actions_map_[scancode].push_back(action_name);     
                 spdlog::trace("  映射按键: {} (Scancode: {}) 到动作: {}", key_name, static_cast<int>(scancode), action_name);
             } else if (mouse_button != 0) {             // 如果鼠标按钮有效,则将action添加到mouse_button_to_actions_map_中
-                mouse_button_to_actions_map_[mouse_button].push_back(action_name); 
+                input_to_actions_map_[mouse_button].push_back(action_name); 
                 spdlog::trace("  映射鼠标按钮: {} (Button ID: {}) 到动作: {}", key_name, static_cast<int>(mouse_button), action_name);
                 // else if: 未来可添加其它输入类型 ...
             } else {
@@ -184,8 +183,8 @@ SDL_Scancode InputManager::scancodeFromString(const std::string& key_name) {
     return SDL_GetScancodeFromName(key_name.c_str());
 }
 
-// 将鼠标按钮名称字符串转换为 SDL 按钮 Uint8 值
-Uint8 InputManager::mouseButtonUint8FromString(const std::string& button_name) {
+// 将鼠标按钮名称字符串转换为 SDL 按钮 Uint32 值
+Uint32 InputManager::mouseButtonFromString(const std::string& button_name) {
     if (button_name == "MouseLeft") return SDL_BUTTON_LEFT;
     if (button_name == "MouseMiddle") return SDL_BUTTON_MIDDLE;
     if (button_name == "MouseRight") return SDL_BUTTON_RIGHT;
