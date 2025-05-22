@@ -40,6 +40,7 @@ add_executable(${TARGET}
                 src/engine/resource/font_manager.cpp
                 src/engine/render/renderer.cpp
                 src/engine/render/camera.cpp
+                src/engine/input/input_manager.cpp
                 )
 
 # 链接库
