@@ -4,6 +4,7 @@
 #include "../render/renderer.h"
 #include "../render/camera.h"
 #include "../input/input_manager.h"
+#include "../object/game_object.h"
 #include "config.h"
 #include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
@@ -55,6 +56,7 @@ bool GameApp::init() {
 
     is_running_ = true;
     spdlog::trace("GameApp 初始化成功。");
+    testGameObject();
     return true;
 }
 
@@ -264,6 +266,12 @@ void GameApp::testInputManager()
             spdlog::info(" {} 按下中 ", action);
         }
     }
+}
+
+void GameApp::testGameObject()
+{
+    engine::object::GameObject game_object("test_game_object");
+    game_object.addComponent<engine::component::Component>();
 }
 
 } // namespace engine::core

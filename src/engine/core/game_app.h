@@ -74,6 +74,7 @@ private:
     void testRenderer();
     void testCamera();
     void testInputManager();
+    void testGameObject();
 };
 
 } // namespace engine::core
