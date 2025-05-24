@@ -6,6 +6,10 @@
 #include <utility>          // 用于完美转发
 #include <spdlog/spdlog.h>
 
+namespace engine::core {
+    class Context;
+}
+
 namespace engine::object {
 
 /**
@@ -117,10 +121,10 @@ public:
     }
 
     // 关键循环函数
-    void update(float delta_time);                ///< @brief 更新所有组件
-    void render();                                ///< @brief 渲染所有组件
-    void clean();                                 ///< @brief 清理所有组件
-    void handleInput();                           ///< @brief 处理输入
+    void update(float delta_time, engine::core::Context& context);              ///< @brief 更新所有组件
+    void render(engine::core::Context& context);                                ///< @brief 渲染所有组件
+    void clean();                                                               ///< @brief 清理所有组件
+    void handleInput(engine::core::Context& context);                           ///< @brief 处理输入
 
 };
 

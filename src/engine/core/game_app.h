@@ -21,6 +21,7 @@ class InputManager;
 namespace engine::core {        // 命名空间的最佳实践：与文件路径一致
 class Time;
 class Config;
+class Context;
 
 /**
  * @brief 主游戏应用程序类，初始化SDL，管理游戏循环。
@@ -38,6 +39,8 @@ private:
     std::unique_ptr<engine::render::Camera> camera_;
     std::unique_ptr<engine::core::Config> config_;
     std::unique_ptr<engine::input::InputManager> input_manager_;
+    std::unique_ptr<engine::core::Context> context_;
+
 public:
     GameApp();
     ~GameApp();
@@ -68,6 +71,7 @@ private:
     [[nodiscard]] bool initRenderer();
     [[nodiscard]] bool initCamera();
     [[nodiscard]] bool initInputManager();
+    [[nodiscard]] bool initContext();
 
     // 测试用函数
     void testResourceManager();
