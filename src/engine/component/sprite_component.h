@@ -51,6 +51,19 @@ public:
         std::optional<SDL_FRect> source_rect_opt = std::nullopt,
         bool is_flipped = false
     );
+
+    /**
+     * @brief 构造函数
+     * @param sprite 精灵对象。
+     * @param resource_manager 资源管理器指针。
+     * @param alignment 初始对齐方式。
+     */
+    SpriteComponent(
+        engine::render::Sprite&& sprite,
+        engine::resource::ResourceManager& resource_manager,
+        engine::utils::Alignment alignment = engine::utils::Alignment::NONE
+    );
+
     ~SpriteComponent() override = default;
 
     // 禁止拷贝和移动
