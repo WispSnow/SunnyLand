@@ -18,6 +18,10 @@ namespace engine::input {
 class InputManager;
 }
 
+namespace engine::physics {
+class PhysicsEngine;
+}
+
 namespace engine::scene {
 class SceneManager;
 }
@@ -45,6 +49,7 @@ private:
     std::unique_ptr<engine::input::InputManager> input_manager_;
     std::unique_ptr<engine::core::Context> context_;
     std::unique_ptr<engine::scene::SceneManager> scene_manager_;
+    std::unique_ptr<engine::physics::PhysicsEngine> physics_engine_;
 
 public:
     GameApp();
@@ -76,6 +81,7 @@ private:
     [[nodiscard]] bool initRenderer();
     [[nodiscard]] bool initCamera();
     [[nodiscard]] bool initInputManager();
+    [[nodiscard]] bool initPhysicsEngine();
     [[nodiscard]] bool initContext();
     [[nodiscard]] bool initSceneManager();
 };

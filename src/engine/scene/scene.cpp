@@ -1,6 +1,8 @@
 #include "scene.h"
-#include "../object/game_object.h"
 #include "scene_manager.h"
+#include "../object/game_object.h"
+#include "../core/context.h"
+#include "../physics/physics_engine.h"
 #include <algorithm> // for std::remove_if
 #include <spdlog/spdlog.h>
 
@@ -20,6 +22,9 @@ void Scene::init() {
 
 void Scene::update(float delta_time) {
     if (!is_initialized_) return;
+    
+    // 先更新物理引擎
+    context_.getPhysicsEngine().update(delta_time);
 
     // 更新所有游戏对象，并删除需要移除的对象
     for (auto it = game_objects_.begin(); it != game_objects_.end();) {

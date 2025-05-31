@@ -13,6 +13,10 @@ namespace engine::resource {
     class ResourceManager;
 }
 
+namespace engine::physics {
+    class PhysicsEngine;
+}
+
 namespace engine::core {
 
 /**
@@ -27,6 +31,7 @@ private:
     engine::render::Renderer& renderer_;                    ///< @brief 渲染器
     engine::render::Camera& camera_;                        ///< @brief 相机
     engine::resource::ResourceManager& resource_manager_;   ///< @brief 资源管理器
+    engine::physics::PhysicsEngine& physics_engine_;        ///< @brief 物理引擎
 
 public:
     /**
@@ -35,11 +40,13 @@ public:
      * @param renderer 对 Renderer 实例的引用。
      * @param camera 对 Camera 实例的引用。
      * @param resource_manager 对 ResourceManager 实例的引用。
+     * @param physics_engine 对 PhysicsEngine 实例的引用。
      */
     Context(engine::input::InputManager& input_manager,
             engine::render::Renderer& renderer,
             engine::render::Camera& camera,
-            engine::resource::ResourceManager& resource_manager);
+            engine::resource::ResourceManager& resource_manager,
+            engine::physics::PhysicsEngine& physics_engine);
 
     // 禁止拷贝和移动，Context 对象通常是唯一的或按需创建/传递
     Context(const Context&) = delete;
@@ -52,7 +59,7 @@ public:
     engine::render::Renderer& getRenderer() const { return renderer_; }                         ///< @brief 获取渲染器
     engine::render::Camera& getCamera() const { return camera_; }                               ///< @brief 获取相机
     engine::resource::ResourceManager& getResourceManager() const { return resource_manager_; } ///< @brief 获取资源管理器
-
+    engine::physics::PhysicsEngine& getPhysicsEngine() const { return physics_engine_; }         ///< @brief 获取物理引擎
 };
 
 } // namespace engine::core
