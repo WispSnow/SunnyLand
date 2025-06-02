@@ -9,7 +9,7 @@
         "vsync": true
     },
     "performance": {
-        "target_fps": 144
+        "target_fps": 60
     },
     "audio": {
         "music_volume": 0.5,

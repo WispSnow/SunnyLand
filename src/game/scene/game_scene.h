@@ -30,6 +30,7 @@ private:
     void createTestObject();
     void testCamera();
     void TestObject();
+    void TestCollisionPairs();
 };
 
 } // namespace game::scene
