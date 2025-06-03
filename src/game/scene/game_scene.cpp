@@ -5,6 +5,7 @@
 #include "../../engine/component/sprite_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/collider_component.h"
+#include "../../engine/component/tilelayer_component.h"
 #include "../../engine/physics/physics_engine.h"
 #include "../../engine/scene/level_loader.h"
 #include "../../engine/input/input_manager.h"
@@ -24,6 +25,16 @@ void GameScene::init() {
     // 加载关卡（level_loader通常加载完成后即可销毁，因此不存为成员变量）
     engine::scene::LevelLoader level_loader;
     level_loader.loadLevel("assets/maps/level1.tmj", *this);
+
+    // 注册"main"层到物理引擎
+    auto* main_layer = findGameObjectByName("main");
+    if (main_layer) {
+        auto* tile_layer = main_layer->getComponent<engine::component::TileLayerComponent>();
+        if (tile_layer) {
+            context_.getPhysicsEngine().registerCollisionLayer(tile_layer);
+            spdlog::info("注册\"main\"层到物理引擎");
+        }
+    }
 
     // 创建 test_object
     createTestObject();
@@ -93,15 +104,20 @@ void GameScene::TestObject()
 {
     if (!test_object_) return;
     auto& input_manager = context_.getInputManager();
-    
+    auto* pc = test_object_->getComponent<engine::component::PhysicsComponent>();
+    if (!pc) return;
     if (input_manager.isActionDown("move_left")) {
-        test_object_->getComponent<engine::component::TransformComponent>()->translate(glm::vec2(-1, 0));
+        pc->velocity_.x = -100.0f;
+    } else {
+        pc->velocity_.x *= 0.9f;
     }
     if (input_manager.isActionDown("move_right")) {
-        test_object_->getComponent<engine::component::TransformComponent>()->translate(glm::vec2(1, 0));
+        pc->velocity_.x = 100.0f;
+    } else {
+        pc->velocity_.x *= 0.9f;
     }
     if (input_manager.isActionPressed("jump")) {
-        test_object_->getComponent<engine::component::PhysicsComponent>()->setVelocity(glm::vec2(0, -400));
+        pc->velocity_.y = -400.0f;
     }
 }
 

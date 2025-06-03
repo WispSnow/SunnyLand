@@ -3,6 +3,7 @@
 #include "../core/context.h"
 #include "../render/renderer.h"
 #include "../render/camera.h"
+#include "../physics/physics_engine.h"
 #include <spdlog/spdlog.h>
 
 namespace engine::component {
@@ -51,6 +52,13 @@ void TileLayerComponent::render(engine::core::Context& context) {
                 context.getRenderer().drawSprite(context.getCamera(), tile_info.sprite, tile_left_top_pos);
             }
         }
+    }
+}
+
+void TileLayerComponent::clean()
+{
+    if (physics_engine_){
+        physics_engine_->unregisterCollisionLayer(this);
     }
 }
 
