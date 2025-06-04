@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <map>
 #include <optional>
+#include "../utils/math.h"
 
 namespace engine::component {
 struct TileInfo;
@@ -39,6 +40,34 @@ private:
     void loadObjectLayer(const nlohmann::json& layer_json, Scene& scene);   ///< @brief 加载对象图层
 
     /**
+     * @brief 获取瓦片属性
+     * @tparam T 属性类型
+     * @param tile_json 瓦片json数据
+     * @param property_name 属性名称
+     * @return 属性值，如果属性不存在则返回 std::nullopt
+     */
+    template<typename T>
+    std::optional<T> getTileProperty(const nlohmann::json& tile_json, const std::string& property_name) {
+        if (!tile_json.contains("properties")) return std::nullopt;
+        const auto& properties = tile_json["properties"];
+        for (const auto& property : properties) {
+            if (property.contains("name") && property["name"] == property_name) {
+                if (property.contains("value")) {
+                    return property["value"].get<T>();
+                }
+            }
+        }
+        return std::nullopt;
+    }
+
+    /**
+     * @brief 获取瓦片碰撞器矩形
+     * @param tile_json 瓦片json数据
+     * @return 碰撞器矩形，如果碰撞器不存在则返回 std::nullopt
+     */
+    std::optional<engine::utils::Rect> getColliderRect(const nlohmann::json& tile_json);
+
+    /**
      * @brief 根据瓦片json对象获取瓦片类型
      * @param tile_json 瓦片json数据
      * @return 瓦片类型
@@ -59,6 +88,13 @@ private:
      * @return engine::component::TileInfo 瓦片信息。
      */
     engine::component::TileInfo getTileInfoByGid(int gid);
+
+    /**
+     * @brief 根据全局 ID 获取瓦片json对象 (用于对象层获取瓦片信息)
+     * @param gid 全局 ID
+     * @return 瓦片json对象
+     */
+    std::optional<nlohmann::json> getTileJsonByGid(int gid) const;
 
     /**
      * @brief 加载 Tiled tileset 文件 (.tsj)。

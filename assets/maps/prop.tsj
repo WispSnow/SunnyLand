@@ -100,7 +100,13 @@
          "id":10,
          "image":"..\/textures\/Props\/face-block.png",
          "imageheight":32,
-         "imagewidth":32
+         "imagewidth":32,
+         "properties":[
+                {
+                 "name":"solid",
+                 "type":"bool",
+                 "value":true
+                }]
         }, 
         {
          "id":11,

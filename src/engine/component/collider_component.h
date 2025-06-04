@@ -51,7 +51,7 @@ public:
     void updateOffset(); 
 
     // --- Getters ---
-    const TransformComponent* getTransform() const { return transform_; }               ///< @brief 获取缓存的TransformComponent
+    TransformComponent* getTransform() const { return transform_; }               ///< @brief 获取缓存的TransformComponent
     const engine::physics::Collider* getCollider() const { return collider_.get(); }    ///< @brief 获取 Collider 对象。
     const glm::vec2& getOffset() const { return offset_; }                              ///< @brief 获取当前计算出的偏移量。
     engine::utils::Alignment getAlignment() const { return alignment_; }                ///< @brief 获取设置的对齐锚点。

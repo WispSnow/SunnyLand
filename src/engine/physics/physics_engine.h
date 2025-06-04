@@ -44,9 +44,6 @@ public:
     void unregisterCollisionLayer(engine::component::TileLayerComponent* layer);///< @brief 注销用于碰撞检测的 TileLayerComponent
 
     void update(float delta_time);      ///< @brief 核心循环：更新所有注册的物理组件的状态
-    void checkObjectCollisions();       ///< @brief 检测并处理对象之间的碰撞，并记录需要游戏逻辑处理的碰撞对。
-    /// @brief 检测并处理游戏对象和瓦片层之间的碰撞。
-    void resolveTileCollisions(engine::component::PhysicsComponent* pc, float delta_time);
 
     // 设置器/获取器
     void setGravity(const glm::vec2& gravity) { gravity_ = gravity; }   ///< @brief 设置全局重力加速度
@@ -57,6 +54,13 @@ public:
     const std::vector<std::pair<engine::object::GameObject*, engine::object::GameObject*>>& getCollisionPairs() const {
         return collision_pairs_;
     };
+
+private:
+    void checkObjectCollisions();       ///< @brief 检测并处理对象之间的碰撞，并记录需要游戏逻辑处理的碰撞对。
+    /// @brief 检测并处理游戏对象和瓦片层之间的碰撞。
+    void resolveTileCollisions(engine::component::PhysicsComponent* pc, float delta_time);
+    /// @brief 处理可移动物体与SOLID物体的碰撞。
+    void resolveSolidObjectCollisions(engine::object::GameObject* move_obj, engine::object::GameObject* solid_obj);
 };
 
 } // namespace engine::physics

@@ -21,7 +21,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -41,6 +40,12 @@
              "x":0,
              "y":0
             },
+         "properties":[
+                {
+                 "name":"tag",
+                 "type":"string",
+                 "value":"enemy"
+                }],
          "width":40,
          "x":0,
          "y":0
@@ -54,7 +59,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":3,
              "name":"",
              "objects":[
                     {
@@ -74,6 +78,17 @@
              "x":0,
              "y":0
             },
+         "properties":[
+                {
+                 "name":"gravity",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"tag",
+                 "type":"string",
+                 "value":"player"
+                }],
          "width":32,
          "x":0,
          "y":0
@@ -87,7 +102,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -107,6 +121,17 @@
              "x":0,
              "y":0
             },
+         "properties":[
+                {
+                 "name":"gravity",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"tag",
+                 "type":"string",
+                 "value":"enemy"
+                }],
          "width":35,
          "x":0,
          "y":0
@@ -120,7 +145,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -140,6 +164,17 @@
              "x":0,
              "y":0
             },
+         "properties":[
+                {
+                 "name":"gravity",
+                 "type":"bool",
+                 "value":true
+                }, 
+                {
+                 "name":"tag",
+                 "type":"string",
+                 "value":"enemy"
+                }],
          "width":36,
          "x":0,
          "y":0
@@ -153,7 +188,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -173,6 +207,12 @@
              "x":0,
              "y":0
             },
+         "properties":[
+                {
+                 "name":"tag",
+                 "type":"string",
+                 "value":"item"
+                }],
          "width":21,
          "x":0,
          "y":0
@@ -186,7 +226,6 @@
          "objectgroup":
             {
              "draworder":"index",
-             "id":2,
              "name":"",
              "objects":[
                     {
@@ -206,6 +245,12 @@
              "x":0,
              "y":0
             },
+         "properties":[
+                {
+                 "name":"tag",
+                 "type":"string",
+                 "value":"item"
+                }],
          "width":15,
          "x":0,
          "y":0
