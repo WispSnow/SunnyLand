@@ -1,11 +1,14 @@
 #pragma once
+#include "../utils/math.h"
 #include <vector>
 #include <utility>  // for std::pair
-#include "glm/vec2.hpp"
+#include <optional>
+#include <glm/vec2.hpp>
 
 namespace engine::component {
     class PhysicsComponent;
     class TileLayerComponent;
+    enum class TileType;
 }
 
 namespace engine::object {
@@ -23,6 +26,7 @@ private:
     std::vector<engine::component::TileLayerComponent*> collision_tile_layers_; ///< @brief 注册的碰撞瓦片图层容器
     glm::vec2 gravity_ = {0.0f, 980.0f};        ///< @brief 默认重力值 (像素/秒^2, 相当于100像素对应现实1m)
     float max_speed_ = 500.0f;                  ///< @brief 最大速度 (像素/秒)
+    std::optional<engine::utils::Rect> world_bounds_;     ///< @brief 世界边界，用于限制物体移动范围
 
     /// @brief 存储本帧发生的 GameObject 碰撞对 （每次 update 开始时清空）
     std::vector<std::pair<engine::object::GameObject*, engine::object::GameObject*>> collision_pairs_;
@@ -50,6 +54,8 @@ public:
     const glm::vec2& getGravity() const { return gravity_; }            ///< @brief 获取当前的全局重力加速度
     void setMaxSpeed(float max_speed) { max_speed_ = max_speed; }       ///< @brief 设置最大速度
     float getMaxSpeed() const { return max_speed_; }                    ///< @brief 获取当前的最大速度
+    void setWorldBounds(const engine::utils::Rect& world_bounds) { world_bounds_ = world_bounds; }   ///< @brief 设置世界边界
+    const std::optional<engine::utils::Rect>& getWorldBounds() const { return world_bounds_; }       ///< @brief 获取世界边界
     /// @brief 获取本帧检测到的所有 GameObject 碰撞对。(此列表在每次 update 开始时清空)
     const std::vector<std::pair<engine::object::GameObject*, engine::object::GameObject*>>& getCollisionPairs() const {
         return collision_pairs_;
@@ -61,6 +67,16 @@ private:
     void resolveTileCollisions(engine::component::PhysicsComponent* pc, float delta_time);
     /// @brief 处理可移动物体与SOLID物体的碰撞。
     void resolveSolidObjectCollisions(engine::object::GameObject* move_obj, engine::object::GameObject* solid_obj);
+    void applyWorldBounds(engine::component::PhysicsComponent* pc);     ///< @brief 应用世界边界，限制物体移动范围
+
+    /**
+     * @brief 根据瓦片类型和指定宽度x坐标，计算瓦片上对应y坐标。
+     * @param width 从瓦片左侧起算的宽度。
+     * @param type 瓦片类型。
+     * @param tile_size 瓦片尺寸。
+     * @return 瓦片上对应高度（从瓦片下侧起算）。
+     */
+    float getTileHeightAtWidth(float width, engine::component::TileType type, glm::vec2 tile_size);
 };
 
 } // namespace engine::physics

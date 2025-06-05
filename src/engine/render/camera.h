@@ -2,6 +2,10 @@
 #include "../utils/math.h"
 #include <optional>
 
+namespace engine::component {
+    class TransformComponent;
+}
+
 namespace engine::render {
 
 /**
@@ -13,7 +17,9 @@ private:
     glm::vec2 viewport_size_;                                                ///< @brief 视口大小（屏幕大小）
     glm::vec2 position_;                                                     ///< @brief 相机左上角的世界坐标
     std::optional<engine::utils::Rect> limit_bounds_;                        ///< @brief 限制相机的移动范围，空值表示不限制
-    
+    float smooth_speed_ = 5.0f;                                              ///< @brief 相机移动的平滑速度
+    engine::component::TransformComponent* target_ = nullptr;                ///< @brief 跟随目标变换组件，空值表示不跟随
+
 public:
 
     Camera(const glm::vec2& viewport_size, const glm::vec2& position = glm::vec2(0.0f, 0.0f), const std::optional<engine::utils::Rect> limit_bounds = std::nullopt);
@@ -27,10 +33,12 @@ public:
 
     void setPosition(const glm::vec2& position);                            ///< @brief 设置相机位置
     void setLimitBounds(const engine::utils::Rect& bounds);                 ///< @brief 设置限制相机的移动范围
+    void setTarget(engine::component::TransformComponent* target);          ///< @brief 设置跟随目标变换组件
 
     const glm::vec2& getPosition() const;                                   ///< @brief 获取相机位置
     std::optional<engine::utils::Rect> getLimitBounds() const;              ///< @brief 获取限制相机的移动范围
     glm::vec2 getViewportSize() const;                                      ///< @brief 获取视口大小
+    engine::component::TransformComponent* getTarget() const;               ///< @brief 获取跟随目标变换组件
 
     // 禁用拷贝和移动语义
     Camera(const Camera&) = delete;

@@ -55,12 +55,102 @@
                 }]
         }, 
         {
+         "id":34,
+         "properties":[
+                {
+                 "name":"unisolid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":35,
+         "properties":[
+                {
+                 "name":"unisolid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":36,
          "properties":[
                 {
                  "name":"solid",
                  "type":"bool",
                  "value":true
+                }]
+        }, 
+        {
+         "id":38,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"0_2"
+                }]
+        }, 
+        {
+         "id":39,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"2_1"
+                }]
+        }, 
+        {
+         "id":41,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"1_2"
+                }]
+        }, 
+        {
+         "id":42,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"2_0"
+                }]
+        }, 
+        {
+         "id":44,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"0_2"
+                }]
+        }, 
+        {
+         "id":45,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"2_1"
+                }]
+        }, 
+        {
+         "id":47,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"1_2"
+                }]
+        }, 
+        {
+         "id":48,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"2_0"
                 }]
         }, 
         {
@@ -74,6 +164,24 @@
         }, 
         {
          "id":64,
+         "properties":[
+                {
+                 "name":"solid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":66,
+         "properties":[
+                {
+                 "name":"solid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":67,
          "properties":[
                 {
                  "name":"solid",
@@ -145,12 +253,66 @@
                 }]
         }, 
         {
+         "id":83,
+         "properties":[
+                {
+                 "name":"unisolid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":85,
+         "properties":[
+                {
+                 "name":"unisolid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":86,
          "properties":[
                 {
                  "name":"solid",
                  "type":"bool",
                  "value":true
+                }]
+        }, 
+        {
+         "id":114,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"0_1"
+                }]
+        }, 
+        {
+         "id":116,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"1_0"
+                }]
+        }, 
+        {
+         "id":120,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"0_1"
+                }]
+        }, 
+        {
+         "id":122,
+         "properties":[
+                {
+                 "name":"slope",
+                 "type":"string",
+                 "value":"1_0"
                 }]
         }, 
         {
@@ -185,6 +347,24 @@
          "properties":[
                 {
                  "name":"solid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":133,
+         "properties":[
+                {
+                 "name":"unisolid",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
+         "id":134,
+         "properties":[
+                {
+                 "name":"unisolid",
                  "type":"bool",
                  "value":true
                 }]
