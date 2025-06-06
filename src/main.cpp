@@ -2,7 +2,7 @@
 #include <spdlog/spdlog.h>
 
 int main(int /* argc */, char* /* argv */[]) {
-    // spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::debug);
 
     engine::core::GameApp app;
     app.run();

@@ -1,4 +1,5 @@
 #include "game_scene.h"
+#include "../component/player_component.h"
 #include "../../engine/core/context.h"
 #include "../../engine/object/game_object.h"
 #include "../../engine/component/transform_component.h"
@@ -22,38 +23,22 @@ GameScene::GameScene(std::string name, engine::core::Context& context, engine::s
 }
 
 void GameScene::init() {
-    // 加载关卡（level_loader通常加载完成后即可销毁，因此不存为成员变量）
-    engine::scene::LevelLoader level_loader;
-    level_loader.loadLevel("assets/maps/level1.tmj", *this);
-
-    // 注册"main"层到物理引擎
-    auto* main_layer = findGameObjectByName("main");
-    if (main_layer) {
-        auto* tile_layer = main_layer->getComponent<engine::component::TileLayerComponent>();
-        if (tile_layer) {
-            context_.getPhysicsEngine().registerCollisionLayer(tile_layer);
-            spdlog::info("注册\"main\"层到物理引擎");
-        }
-    }
-
-    // 获取玩家对象
-    player_ = findGameObjectByName("player");
-    if (!player_) {
-        spdlog::error("未找到玩家对象");
+    if (is_initialized_) {
+        spdlog::warn("GameScene 已经初始化过了，重复调用 init()。");
         return;
     }
-    // 相机跟随玩家
-    auto* player_transform = player_->getComponent<engine::component::TransformComponent>();
-    if (player_transform) {
-        context_.getCamera().setTarget(player_transform);
+    spdlog::trace("GameScene 初始化开始...");
+
+    if (!initLevel()) {
+        spdlog::error("关卡初始化失败，无法继续。");
+        context_.getInputManager().setShouldQuit(true);
+        return;
     }
-
-    // 设置相机边界
-    auto world_size = main_layer->getComponent<engine::component::TileLayerComponent>()->getWorldSize();
-    context_.getCamera().setLimitBounds(engine::utils::Rect(glm::vec2(0.0f), world_size));
-
-    // 设置世界边界
-    context_.getPhysicsEngine().setWorldBounds(engine::utils::Rect(glm::vec2(0.0f), world_size));
+    if (!initPlayer()) {
+        spdlog::error("玩家初始化失败，无法继续。");
+        context_.getInputManager().setShouldQuit(true);
+        return;
+    }
 
     Scene::init();
     spdlog::trace("GameScene 初始化完成。");
@@ -61,7 +46,6 @@ void GameScene::init() {
 
 void GameScene::update(float delta_time) {
     Scene::update(delta_time);
-    TestCollisionPairs();
 }
 
 void GameScene::render() {
@@ -70,51 +54,71 @@ void GameScene::render() {
 
 void GameScene::handleInput() {
     Scene::handleInput();
-    TestPlayer();
 }
 
 void GameScene::clean() {
     Scene::clean();
 }
 
-// --- 测试方法 ---
+bool GameScene::initLevel()
+{
+    // 加载关卡（level_loader通常加载完成后即可销毁，因此不存为成员变量）
+    engine::scene::LevelLoader level_loader;
+    if (!level_loader.loadLevel("assets/maps/level1.tmj", *this)){
+        spdlog::error("关卡加载失败");
+        return false;
+    }
 
-void GameScene::testCamera() {
-    auto& camera = context_.getCamera();
-    auto& input_manager = context_.getInputManager();
-    if (input_manager.isActionDown("move_up")) camera.move(glm::vec2(0, -1));   
-    if (input_manager.isActionDown("move_down")) camera.move(glm::vec2(0, 1));
-    if (input_manager.isActionDown("move_left")) camera.move(glm::vec2(-1, 0));
-    if (input_manager.isActionDown("move_right")) camera.move(glm::vec2(1, 0));
+    // 注册"main"层到物理引擎
+    auto* main_layer = findGameObjectByName("main");
+    if (!main_layer) {
+        spdlog::error("未找到\"main\"层");
+        return false;
+    }
+    auto* tile_layer = main_layer->getComponent<engine::component::TileLayerComponent>();
+    if (!tile_layer) {
+        spdlog::error("\"main\"层没有 TileLayerComponent 组件");
+        return false;
+    }
+    context_.getPhysicsEngine().registerCollisionLayer(tile_layer);
+    spdlog::info("注册\"main\"层到物理引擎");
+    
+    // 设置相机边界
+    auto world_size = main_layer->getComponent<engine::component::TileLayerComponent>()->getWorldSize();
+    context_.getCamera().setLimitBounds(engine::utils::Rect(glm::vec2(0.0f), world_size));
+
+    // 设置世界边界
+    context_.getPhysicsEngine().setWorldBounds(engine::utils::Rect(glm::vec2(0.0f), world_size));
+
+    spdlog::trace("关卡初始化完成。");
+    return true;
 }
 
-void GameScene::TestPlayer()
+bool GameScene::initPlayer()
 {
-    if (!player_) return;
-    auto& input_manager = context_.getInputManager();
-    auto* pc = player_->getComponent<engine::component::PhysicsComponent>();
-    if (!pc) return;
-    if (input_manager.isActionDown("move_left")) {
-        pc->velocity_.x = -100.0f;
-    } else {
-        pc->velocity_.x *= 0.9f;
+    // 获取玩家对象
+    player_ = findGameObjectByName("player");
+    if (!player_) {
+        spdlog::error("未找到玩家对象");
+        return false;
     }
-    if (input_manager.isActionDown("move_right")) {
-        pc->velocity_.x = 100.0f;
-    } else {
-        pc->velocity_.x *= 0.9f;
-    }
-    if (input_manager.isActionPressed("jump")) {
-        pc->velocity_.y = -400.0f;
-    }
-}
 
-void GameScene::TestCollisionPairs()
-{
-    auto collision_pairs = context_.getPhysicsEngine().getCollisionPairs();
-    for (auto& pair : collision_pairs) {
-        spdlog::info("碰撞对: {} 和 {}", pair.first->getName(), pair.second->getName());
+    // 添加PlayerComponent到玩家对象
+    auto* player_component = player_->addComponent<game::component::PlayerComponent>();
+    if (!player_component) {
+        spdlog::error("无法添加 PlayerComponent 到玩家对象");
+        return false;
     }
+
+    // 相机跟随玩家
+    auto* player_transform = player_->getComponent<engine::component::TransformComponent>();
+    if (!player_transform) {
+        spdlog::error("玩家对象没有 TransformComponent 组件, 无法设置相机目标");
+        return false;
+    }
+    context_.getCamera().setTarget(player_transform);
+    spdlog::trace("Player初始化完成。");
+    return true;
 }
 
 } // namespace game::scene 

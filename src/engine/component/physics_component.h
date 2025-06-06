@@ -28,6 +28,12 @@ private:
     bool use_gravity_ = true;                       ///< @brief 物体是否受重力影响
     bool enabled_ = true;                           ///< @brief 组件是否激活
 
+    // --- 碰撞状态标志 ---
+    bool collided_below_ = false;
+    bool collided_above_ = false;
+    bool collided_left_ = false;
+    bool collided_right_ = false;
+
 public:
     /**
      * @brief 构造函数  
@@ -60,6 +66,25 @@ public:
     void setVelocity(const glm::vec2& velocity) { velocity_ = velocity; }       ///< @brief 设置速度
     const glm::vec2& getVelocity() const { return velocity_; }                  ///< @brief 获取当前速度
     TransformComponent* getTransform() const { return transform_; }             ///< @brief 获取TransformComponent指针
+
+    // --- 碰撞状态访问与修改 (供 PhysicsEngine 使用) ---
+    /** @brief 重置所有碰撞标志 (在物理更新开始时调用) */
+    void resetCollisionFlags() {
+        collided_below_ = false;
+        collided_above_ = false;
+        collided_left_ = false;
+        collided_right_ = false;
+    }
+
+    void setCollidedBelow(bool collided) { collided_below_ = collided; }    ///< @brief 设置下方碰撞标志
+    void setCollidedAbove(bool collided) { collided_above_ = collided; }    ///< @brief 设置上方碰撞标志
+    void setCollidedLeft(bool collided) { collided_left_ = collided; }      ///< @brief 设置左方碰撞标志
+    void setCollidedRight(bool collided) { collided_right_ = collided; }    ///< @brief 设置右方碰撞标志
+
+    bool hasCollidedBelow() const { return collided_below_; }       ///< @brief 检查是否与下方发生碰撞
+    bool hasCollidedAbove() const { return collided_above_; }       ///< @brief 检查是否与上方发生碰撞
+    bool hasCollidedLeft() const { return collided_left_; }         ///< @brief 检查是否与左方发生碰撞
+    bool hasCollidedRight() const { return collided_right_; }       ///< @brief 检查是否与右方发生碰撞
 
 private:
     // 核心循环方法
