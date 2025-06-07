@@ -3,6 +3,7 @@
 #include "../../engine/component/transform_component.h"
 #include "../../engine/component/physics_component.h"
 #include "../../engine/component/sprite_component.h"
+#include "../../engine/component/animation_component.h"
 #include "../../engine/object/game_object.h"
 #include "../../engine/input/input_manager.h"
 #include <utility>
@@ -21,9 +22,10 @@ void PlayerComponent::init() {
     transform_component_ = owner_->getComponent<engine::component::TransformComponent>();
     physics_component_ = owner_->getComponent<engine::component::PhysicsComponent>();
     sprite_component_ = owner_->getComponent<engine::component::SpriteComponent>();
+    animation_component_ = owner_->getComponent<engine::component::AnimationComponent>();
 
     // 检查必要组件是否存在
-    if (!transform_component_ || !physics_component_ || !sprite_component_) {
+    if (!transform_component_ || !physics_component_ || !sprite_component_ || !animation_component_) {
         spdlog::error("Player 对象缺少必要组件！");
     }
 

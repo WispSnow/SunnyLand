@@ -41,6 +41,7 @@ add_executable(${TARGET}
                 src/engine/resource/font_manager.cpp
                 src/engine/render/renderer.cpp
                 src/engine/render/camera.cpp
+                src/engine/render/animation.cpp
                 src/engine/input/input_manager.cpp
                 src/engine/object/game_object.cpp
                 src/engine/component/sprite_component.cpp
@@ -49,6 +50,7 @@ add_executable(${TARGET}
                 src/engine/component/tilelayer_component.cpp
                 src/engine/component/physics_component.cpp
                 src/engine/component/collider_component.cpp
+                src/engine/component/animation_component.cpp
                 src/engine/physics/physics_engine.cpp
                 src/engine/physics/collision.cpp
                 src/engine/scene/scene.cpp
@@ -56,6 +58,7 @@ add_executable(${TARGET}
                 src/engine/scene/level_loader.cpp
                 src/game/scene/game_scene.cpp
                 src/game/component/player_component.cpp
+                src/game/component/state/player_state.cpp
                 src/game/component/state/idle_state.cpp
                 src/game/component/state/walk_state.cpp
                 src/game/component/state/jump_state.cpp

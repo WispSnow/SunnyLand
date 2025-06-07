@@ -11,7 +11,7 @@
 namespace game::component::state {
 
 void IdleState::enter() {
-
+    playAnimation("idle");  // 播放待机动画
 }
 
 void IdleState::exit() {

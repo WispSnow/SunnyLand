@@ -11,7 +11,7 @@
 namespace game::component::state {
 
 void FallState::enter() {
-
+    playAnimation("fall");  // 播放下落动画
 }
 
 void FallState::exit() {
