@@ -30,6 +30,9 @@ private:
     [[nodiscard]] bool initPlayer();              ///< @brief 初始化玩家
     [[nodiscard]] bool initEnemyAndItem();        ///< @brief 初始化敌人和道具
 
+    // 测试函数
+    void testHealth();                ///< @brief 测试生命值组件
+
 };
 
 } // namespace game::scene

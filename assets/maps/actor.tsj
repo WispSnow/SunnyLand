@@ -47,6 +47,11 @@
                  "value":"{\n  \"fly\": {\"frames\": [0,1,2,3]}\n}"
                 }, 
                 {
+                 "name":"health",
+                 "type":"int",
+                 "value":1
+                }, 
+                {
                  "name":"tag",
                  "type":"string",
                  "value":"enemy"
@@ -93,6 +98,11 @@
                  "name":"gravity",
                  "type":"bool",
                  "value":true
+                }, 
+                {
+                 "name":"health",
+                 "type":"int",
+                 "value":3
                 }, 
                 {
                  "name":"tag",
@@ -143,6 +153,11 @@
                  "value":true
                 }, 
                 {
+                 "name":"health",
+                 "type":"int",
+                 "value":1
+                }, 
+                {
                  "name":"tag",
                  "type":"string",
                  "value":"enemy"
@@ -189,6 +204,11 @@
                  "name":"gravity",
                  "type":"bool",
                  "value":true
+                }, 
+                {
+                 "name":"health",
+                 "type":"int",
+                 "value":1
                 }, 
                 {
                  "name":"tag",
