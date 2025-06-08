@@ -21,10 +21,11 @@
          "objectgroup":
             {
              "draworder":"index",
+             "id":2,
              "name":"",
              "objects":[
                     {
-                     "height":39,
+                     "height":24.6363636363636,
                      "id":1,
                      "name":"",
                      "rotation":0,
@@ -32,7 +33,7 @@
                      "visible":true,
                      "width":32,
                      "x":3,
-                     "y":0
+                     "y":14.3636363636364
                     }],
              "opacity":1,
              "type":"objectgroup",
