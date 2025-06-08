@@ -55,6 +55,7 @@ void GameScene::init() {
 void GameScene::update(float delta_time) {
     Scene::update(delta_time);
     handleObjectCollisions();
+    handleTileTriggers();
 }
 
 void GameScene::render() {
@@ -189,6 +190,31 @@ void GameScene::handleObjectCollisions()
             PlayerVSItemCollision(obj1, obj2);
         } else if (obj2->getName() == "player" && obj1->getTag() == "item") {
             PlayerVSItemCollision(obj2, obj1);
+        }
+        // 处理玩家与"hazard"对象碰撞
+        else if (obj1->getName() == "player" && obj2->getTag() == "hazard") {
+            obj1->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+            spdlog::debug("玩家 {} 受到了 HAZARD 对象伤害", obj1->getName());
+        } else if (obj2->getName() == "player" && obj1->getTag() == "hazard") {
+            obj2->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+            spdlog::debug("玩家 {} 受到了 HAZARD 对象伤害", obj2->getName());
+        }
+    }
+}
+
+void GameScene::handleTileTriggers()
+{
+    const auto& tile_trigger_events = context_.getPhysicsEngine().getTileTriggerEvents();
+    for (const auto& event : tile_trigger_events) {
+        auto* obj = event.first;        // 瓦片触发事件的对象
+        auto tile_type = event.second;  // 瓦片类型
+        if (tile_type == engine::component::TileType::HAZARD) {
+            // 玩家碰到到危险瓦片，受伤
+            if (obj->getName() == "player") {       
+                obj->getComponent<game::component::PlayerComponent>()->takeDamage(1);
+                spdlog::debug("玩家 {} 受到了 HAZARD 瓦片伤害", obj->getName());
+            } 
+            // TODO: 其他对象类型的处理，目前让敌人无视瓦片伤害
         }
     }
 }
