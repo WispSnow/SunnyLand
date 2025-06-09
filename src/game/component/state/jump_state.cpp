@@ -15,7 +15,7 @@ namespace game::component::state {
 void JumpState::enter() {
     playAnimation("jump");  // 播放跳跃动画
     auto physics_component = player_component_->getPhysicsComponent();
-    physics_component->velocity_.y = -player_component_->getJumpForce(); // 向上跳跃
+    physics_component->velocity_.y = -player_component_->getJumpVelocity();     // 向上跳跃
     spdlog::debug("PlayerComponent 进入 JumpState，设置初始垂直速度为: {}", physics_component->velocity_.y);
 }
 

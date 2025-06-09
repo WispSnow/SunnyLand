@@ -40,7 +40,7 @@ private:
     float move_force_ = 200.0f;         ///< @brief 水平移动力
     float max_speed_ = 120.0f;          ///< @brief 最大移动速度 (像素/秒)
     float friction_factor_ = 0.85f;     ///< @brief 摩擦系数 (Idle时缓冲效果，每帧乘以此系数)
-    float jump_force_ = 350.0f;         ///< @brief 跳跃力 (按下"jump"键给的瞬间向上的力)
+    float jump_vel_ = 350.0f;           ///< @brief 跳跃速度 (按下"jump"键给的瞬间向上的速度)
 
     // --- 属性相关参数 ---
     float stunned_duration_ = 0.4f;     ///< @brief 玩家被击中后的硬直时间（单位：秒）
@@ -72,8 +72,8 @@ public:
     float getMaxSpeed() const { return max_speed_; }                    ///< @brief 获取最大移动速度
     void setFrictionFactor(float friction_factor) { friction_factor_ = friction_factor; }   ///< @brief 设置摩擦系数
     float getFrictionFactor() const { return friction_factor_; }        ///< @brief 获取摩擦系数
-    void setJumpForce(float jump_force) { jump_force_ = jump_force; }   ///< @brief 设置跳跃力
-    float getJumpForce() const { return jump_force_; }                  ///< @brief 获取跳跃力
+    void setJumpVelocity(float jump_vel) { jump_vel_ = jump_vel; }      ///< @brief 设置跳跃速度
+    float getJumpVelocity() const { return jump_vel_; }                 ///< @brief 获取跳跃速度
     void setStunnedDuration(float duration) { stunned_duration_ = duration; }  ///< @brief 设置硬直时间
     float getStunnedDuration() const { return stunned_duration_; }       ///< @brief 获取硬直时间
 
