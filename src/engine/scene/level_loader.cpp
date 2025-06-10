@@ -368,6 +368,10 @@ engine::component::TileType LevelLoader::getTileType(const nlohmann::json &tile_
                 auto is_hazard = property.value("value", false);
                 return is_hazard ? engine::component::TileType::HAZARD : engine::component::TileType::NORMAL;
             }
+            else if (property.contains("name") && property["name"] == "ladder") {
+                auto is_ladder = property.value("value", false);
+                return is_ladder ? engine::component::TileType::LADDER : engine::component::TileType::NORMAL;
+            }
             // TODO: 可以在这里添加更多的自定义属性处理逻辑
         }
     }

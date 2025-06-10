@@ -44,6 +44,7 @@ public:
     void addAnimation(std::unique_ptr<engine::render::Animation> animation);    ///< @brief 向 animations_ map容器中添加一个动画。
     void playAnimation(const std::string& name);    ///< @brief 播放指定名称的动画。
     void stopAnimation() { is_playing_ = false; }   ///< @brief 停止当前动画播放。
+    void resumeAnimation() {is_playing_ = true; }   ///< @brief 恢复当前动画播放。
 
     // --- Getters and Setters ---
     std::string getCurrentAnimationName() const;

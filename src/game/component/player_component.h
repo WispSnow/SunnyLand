@@ -39,6 +39,7 @@ private:
     // --- 移动相关参数
     float move_force_ = 200.0f;         ///< @brief 水平移动力
     float max_speed_ = 120.0f;          ///< @brief 最大移动速度 (像素/秒)
+    float climb_speed_ = 100.0f;        ///< @brief 爬梯子速度 (像素/秒)
     float friction_factor_ = 0.85f;     ///< @brief 摩擦系数 (Idle时缓冲效果，每帧乘以此系数)
     float jump_vel_ = 350.0f;           ///< @brief 跳跃速度 (按下"jump"键给的瞬间向上的速度)
 
@@ -70,6 +71,8 @@ public:
     float getMoveForce() const { return move_force_; }                  ///< @brief 获取水平移动力  
     void setMaxSpeed(float max_speed) { max_speed_ = max_speed; }       ///< @brief 设置最大移动速度
     float getMaxSpeed() const { return max_speed_; }                    ///< @brief 获取最大移动速度
+    void setClimbSpeed(float climb_speed) { climb_speed_ = climb_speed; } ///< @brief 设置爬梯子速度
+    float getClimbSpeed() const { return climb_speed_; }                  ///< @brief 获取爬梯子速度
     void setFrictionFactor(float friction_factor) { friction_factor_ = friction_factor; }   ///< @brief 设置摩擦系数
     float getFrictionFactor() const { return friction_factor_; }        ///< @brief 获取摩擦系数
     void setJumpVelocity(float jump_vel) { jump_vel_ = jump_vel; }      ///< @brief 设置跳跃速度

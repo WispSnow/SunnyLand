@@ -459,6 +459,15 @@
                 }]
         }, 
         {
+         "id":257,
+         "properties":[
+                {
+                 "name":"ladder",
+                 "type":"bool",
+                 "value":true
+                }]
+        }, 
+        {
          "id":261,
          "properties":[
                 {

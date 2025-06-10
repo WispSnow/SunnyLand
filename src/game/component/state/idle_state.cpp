@@ -2,6 +2,7 @@
 #include "fall_state.h"
 #include "jump_state.h"
 #include "walk_state.h"
+#include "climb_state.h"
 #include "../player_component.h"
 #include "../../../engine/core/context.h"
 #include "../../../engine/input/input_manager.h"
@@ -21,6 +22,13 @@ void IdleState::exit() {
 std::unique_ptr<PlayerState> IdleState::handleInput(engine::core::Context& context)
 {
     auto input_manager = context.getInputManager();
+    auto physics_component = player_component_->getPhysicsComponent();
+
+    // 如果按"move_up"键，且与梯子重合，则切换到 ClimbState
+    if (physics_component->hasCollidedLadder() && input_manager.isActionDown("move_up")) {
+        return std::make_unique<ClimbState>(player_component_);
+    }
+
     // 如果按下了左右移动键，则切换到 WalkState
     if (input_manager.isActionDown("move_left") || input_manager.isActionDown("move_right")) {
         return std::make_unique<WalkState>(player_component_);

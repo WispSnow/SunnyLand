@@ -361,6 +361,10 @@ void PhysicsEngine::checkTileTriggers()
                     if (tile_type == engine::component::TileType::HAZARD) {
                         triggers_set.insert(tile_type);     // 记录触发事件，set 保证每个瓦片类型只记录一次
                     }
+                    // 梯子类型不必记录到事件容器，物理引擎自己处理
+                    else if (tile_type == engine::component::TileType::LADDER) { 
+                        pc->setCollidedLadder(true);
+                    }
                 }
             }
             // 遍历触发事件集合，添加到 tile_trigger_events_ 中
