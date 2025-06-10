@@ -57,7 +57,7 @@ std::unique_ptr<PlayerState> JumpState::update(float, engine::core::Context&)
     physics_component->velocity_.x = glm::clamp(physics_component->velocity_.x, -max_speed, max_speed);
 
     // 如果速度为正，切换到 FallState
-    if (physics_component->velocity_.y > 0.0f) {
+    if (physics_component->velocity_.y >= 0.0f) {
         return std::make_unique<FallState>(player_component_);
     }
 
