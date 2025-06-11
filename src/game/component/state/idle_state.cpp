@@ -56,8 +56,8 @@ std::unique_ptr<PlayerState> IdleState::update(float, engine::core::Context&)
     auto friction_factor = player_component_->getFrictionFactor();
     physics_component->velocity_.x *= friction_factor;
 
-    // 如果下方没有碰撞，则切换到 FallState
-    if (!physics_component->hasCollidedBelow()) {
+    // 如果离地，则切换到 FallState
+    if (!player_component_->is_on_ground()) {
         return std::make_unique<FallState>(player_component_);
     }
     return nullptr;

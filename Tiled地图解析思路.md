@@ -29,3 +29,32 @@
 - **对象层物体特别注意:** 信息分散在两个区块中：
   - 地图tmj中：           绘制区域、名字 (及针对当前地图添加的自定义属性)
   - gid对应的图块集tsj中:  源图片信息    (画在任何地图上都会有的属性)
+
+
+# 地图自定义属性约定
+- 限瓦片层
+  - unisolid (bool) : 单向平台
+  - ladder (bool) : 梯子
+  - slope (string) : 斜坡图块，格式"x_y"。x表示左边高度，y表示右边高度。范围0~1。（如果是2则表示1/2高度）
+
+- 限对象层
+  - tag (string) : 对象类型，例如player,enemy,item
+  - gravity (bool) : 是否使用重力（有此字段则默认添加 PhysicsComponent）
+  - health (int) : 添加生命组件，生命值为 value
+  - animation (json_string) : 添加动画组件，json格式为:
+    ```json
+    {
+      "name1" : {"duration" : int, "row" : int, "frames": array(int)},
+      "name2" : ...
+    } 
+    ```
+    含义为: 
+    ```json
+    { "动画名" : {"帧持续时间" : ms, "行" : (从0开始数), "帧序列（列）": [0,1,2...]} }
+    ```
+    要求每个动画序列帧必须在同一行。
+  - 图块碰撞编辑器：识别为碰撞盒，限一个图形，只支持矩形和圆形
+
+- 两层皆可
+  - solid (bool) : 静止不可进入的图块/物体
+  - hazard (bool) : 对玩家造成伤害的瓦片
