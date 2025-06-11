@@ -25,7 +25,7 @@
 namespace game::scene {
 
 // 构造函数：调用基类构造函数
-GameScene::GameScene(std::string name, engine::core::Context& context, engine::scene::SceneManager& scene_manager)
+GameScene::GameScene(const std::string& name, engine::core::Context& context, engine::scene::SceneManager& scene_manager)
     : Scene(name, context, scene_manager) {
     spdlog::trace("GameScene 构造完成。");
 }
@@ -189,15 +189,15 @@ void GameScene::handleObjectCollisions()
 
         // 处理玩家与敌人的碰撞
         if (obj1->getName() == "player" && obj2->getTag() == "enemy") {
-            PlayerVSEnemyCollision(obj1, obj2);
+            playerVSEnemyCollision(obj1, obj2);
         } else if (obj2->getName() == "player" && obj1->getTag() == "enemy") {
-            PlayerVSEnemyCollision(obj2, obj1);
+            playerVSEnemyCollision(obj2, obj1);
         }
         // 处理玩家与道具的碰撞
         else if (obj1->getName() == "player" && obj2->getTag() == "item") {
-            PlayerVSItemCollision(obj1, obj2);
+            playerVSItemCollision(obj1, obj2);
         } else if (obj2->getName() == "player" && obj1->getTag() == "item") {
-            PlayerVSItemCollision(obj2, obj1);
+            playerVSItemCollision(obj2, obj1);
         }
         // 处理玩家与"hazard"对象碰撞
         else if (obj1->getName() == "player" && obj2->getTag() == "hazard") {
@@ -227,7 +227,7 @@ void GameScene::handleTileTriggers()
     }
 }
 
-void GameScene::PlayerVSEnemyCollision(engine::object::GameObject *player, engine::object::GameObject *enemy)
+void GameScene::playerVSEnemyCollision(engine::object::GameObject *player, engine::object::GameObject *enemy)
 {
     // --- 踩踏判断逻辑：1. 玩家中心点在敌人上方    2. 重叠区域：overlap.x > overlap.y
     auto player_aabb = player->getComponent<engine::component::ColliderComponent>()->getWorldAABB();
@@ -263,7 +263,7 @@ void GameScene::PlayerVSEnemyCollision(engine::object::GameObject *player, engin
     }
 }
 
-void GameScene::PlayerVSItemCollision(engine::object::GameObject * player, engine::object::GameObject * item)
+void GameScene::playerVSItemCollision(engine::object::GameObject * player, engine::object::GameObject * item)
 {
     if (item->getName() == "fruit") {
         player->getComponent<engine::component::HealthComponent>()->heal(1);  // 加血

@@ -17,7 +17,7 @@ class GameScene final: public engine::scene::Scene {
     engine::object::GameObject* player_ = nullptr;  ///< @brief 保存玩家对象的指针，方便访问
 
 public:
-    GameScene(std::string name, engine::core::Context& context, engine::scene::SceneManager& scene_manager);
+    GameScene(const std::string& name, engine::core::Context& context, engine::scene::SceneManager& scene_manager);
 
     // 覆盖场景基类的核心方法
     void init() override;
@@ -33,8 +33,8 @@ private:
 
     void handleObjectCollisions();              ///< @brief 处理游戏对象间的碰撞逻辑（从PhysicsEngine获取信息）
     void handleTileTriggers();                  ///< @brief 处理瓦片触发事件（从PhysicsEngine获取信息）
-    void PlayerVSEnemyCollision(engine::object::GameObject* player, engine::object::GameObject* enemy);  ///< @brief 玩家与敌人碰撞处理
-    void PlayerVSItemCollision(engine::object::GameObject* player, engine::object::GameObject* item);    ///< @brief 玩家与道具碰撞处理
+    void playerVSEnemyCollision(engine::object::GameObject* player, engine::object::GameObject* enemy);  ///< @brief 玩家与敌人碰撞处理
+    void playerVSItemCollision(engine::object::GameObject* player, engine::object::GameObject* item);    ///< @brief 玩家与道具碰撞处理
 
     /**
      * @brief 创建一个特效对象（一次性）。
