@@ -14,6 +14,7 @@
 #include "../../engine/input/input_manager.h"
 #include "../../engine/render/camera.h"
 #include "../../engine/render/animation.h"
+#include "../../engine/audio/audio_player.h"
 #include "../component/ai_component.h"
 #include "../component/ai/patrol_behavior.h"
 #include "../component/ai/updown_behavior.h"
@@ -51,6 +52,12 @@ void GameScene::init() {
         context_.getInputManager().setShouldQuit(true);
         return;
     }
+
+    // 设置音量
+    context_.getAudioPlayer().setMusicVolume(0.2f);  // 设置背景音乐音量为20%
+    context_.getAudioPlayer().setSoundVolume(0.5f);  // 设置音效音量为50%
+    // 播放背景音乐 (循环，淡入1秒)
+    context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
 
     Scene::init();
     spdlog::trace("GameScene 初始化完成。");
@@ -245,6 +252,8 @@ void GameScene::PlayerVSEnemyCollision(engine::object::GameObject *player, engin
         }
         // 玩家跳起效果
         player->getComponent<engine::component::PhysicsComponent>()->velocity_.y = -300.0f;  // 向上跳起
+        // 播放音效 (此音效完全可以放在玩家的音频组件中，这里示例另一种用法：直接用AudioPlayer播放，传入文件路径)
+        context_.getAudioPlayer().playSound("assets/audio/punch2a.mp3");
     }
     // 踩踏判断失败，玩家受伤
     else {
@@ -264,6 +273,7 @@ void GameScene::PlayerVSItemCollision(engine::object::GameObject * player, engin
     item->setNeedRemove(true);  // 标记道具为待删除状态
     auto item_aabb = item->getComponent<engine::component::ColliderComponent>()->getWorldAABB();
     createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());  // 创建特效
+    context_.getAudioPlayer().playSound("assets/audio/poka01.mp3");         // 播放音效
 }
 
 void GameScene::createEffect(const glm::vec2& center_pos, const std::string &tag)

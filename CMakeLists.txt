@@ -31,6 +31,7 @@ find_package(spdlog REQUIRED)
 # 添加可执行文件
 add_executable(${TARGET} 
                 src/main.cpp
+                src/engine/audio/audio_player.cpp
                 src/engine/core/game_app.cpp
                 src/engine/core/time.cpp
                 src/engine/core/config.cpp
@@ -52,6 +53,7 @@ add_executable(${TARGET}
                 src/engine/component/collider_component.cpp
                 src/engine/component/animation_component.cpp
                 src/engine/component/health_component.cpp
+                src/engine/component/audio_component.cpp
                 src/engine/physics/physics_engine.cpp
                 src/engine/physics/collision.cpp
                 src/engine/scene/scene.cpp
