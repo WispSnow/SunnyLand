@@ -8,16 +8,23 @@ namespace engine::object {
     class GameObject;
 }
 
+namespace game::data {
+    class SessionData;
+}
+
 namespace game::scene {
 
 /**
  * @brief 主要的游戏场景，包含玩家、敌人、关卡元素等。
  */
 class GameScene final: public engine::scene::Scene {
+    std::shared_ptr<game::data::SessionData> game_session_data_;    ///< @brief 场景间共享数据，因此用shared_ptr
     engine::object::GameObject* player_ = nullptr;  ///< @brief 保存玩家对象的指针，方便访问
 
 public:
-    GameScene(const std::string& name, engine::core::Context& context, engine::scene::SceneManager& scene_manager);
+    GameScene(engine::core::Context& context, 
+              engine::scene::SceneManager& scene_manager, 
+              std::shared_ptr<game::data::SessionData> data = nullptr);
 
     // 覆盖场景基类的核心方法
     void init() override;
@@ -33,6 +40,7 @@ private:
 
     void handleObjectCollisions();              ///< @brief 处理游戏对象间的碰撞逻辑（从PhysicsEngine获取信息）
     void handleTileTriggers();                  ///< @brief 处理瓦片触发事件（从PhysicsEngine获取信息）
+    void handlePlayerDamage(int damage);         ///< @brief 处理玩家受伤（更新得分、UI等）
     void playerVSEnemyCollision(engine::object::GameObject* player, engine::object::GameObject* enemy);  ///< @brief 玩家与敌人碰撞处理
     void playerVSItemCollision(engine::object::GameObject* player, engine::object::GameObject* item);    ///< @brief 玩家与道具碰撞处理
 
@@ -47,6 +55,9 @@ private:
      * @param tag 特效标签（决定特效类型,例如"enemy","item"）
      */
     void createEffect(const glm::vec2& center_pos, const std::string& tag);
+
+    // 测试函数
+    void testSaveAndLoad();
 };
 
 } // namespace game::scene
