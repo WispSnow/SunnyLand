@@ -11,6 +11,7 @@
 #include "../../engine/component/health_component.h"
 #include "../../engine/physics/physics_engine.h"
 #include "../../engine/scene/level_loader.h"
+#include "../../engine/scene/scene_manager.h"
 #include "../../engine/input/input_manager.h"
 #include "../../engine/render/camera.h"
 #include "../../engine/render/animation.h"
@@ -57,7 +58,7 @@ void GameScene::init() {
     context_.getAudioPlayer().setMusicVolume(0.2f);  // 设置背景音乐音量为20%
     context_.getAudioPlayer().setSoundVolume(0.5f);  // 设置音效音量为50%
     // 播放背景音乐 (循环，淡入1秒)
-    context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
+    // context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
 
     Scene::init();
     spdlog::trace("GameScene 初始化完成。");
@@ -85,7 +86,8 @@ bool GameScene::initLevel()
 {
     // 加载关卡（level_loader通常加载完成后即可销毁，因此不存为成员变量）
     engine::scene::LevelLoader level_loader;
-    if (!level_loader.loadLevel("assets/maps/level1.tmj", *this)){
+    auto level_path = levelNameToPath(scene_name_);
+    if (!level_loader.loadLevel(level_path, *this)){
         spdlog::error("关卡加载失败");
         return false;
     }
@@ -207,6 +209,12 @@ void GameScene::handleObjectCollisions()
             obj2->getComponent<game::component::PlayerComponent>()->takeDamage(1);
             spdlog::debug("玩家 {} 受到了 HAZARD 对象伤害", obj2->getName());
         }
+        // 处理玩家与关底触发器碰撞
+        else if (obj1->getName() == "player" && obj2->getTag() == "next_level") {
+            toNextLevel(obj2);
+        } else if (obj2->getName() == "player" && obj1->getTag() == "next_level") {
+            toNextLevel(obj1);
+        }
     }
 }
 
@@ -274,6 +282,13 @@ void GameScene::playerVSItemCollision(engine::object::GameObject * player, engin
     auto item_aabb = item->getComponent<engine::component::ColliderComponent>()->getWorldAABB();
     createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());  // 创建特效
     context_.getAudioPlayer().playSound("assets/audio/poka01.mp3");         // 播放音效
+}
+
+void GameScene::toNextLevel(engine::object::GameObject *trigger)
+{
+    auto scene_name = trigger->getName();
+    auto next_scene = std::make_unique<game::scene::GameScene>(scene_name, context_, scene_manager_);
+    scene_manager_.requestReplaceScene(std::move(next_scene));
 }
 
 void GameScene::createEffect(const glm::vec2& center_pos, const std::string &tag)

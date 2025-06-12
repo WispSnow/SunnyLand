@@ -160,9 +160,44 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
     for (const auto& object : objects) {
         // 获取对象gid
         auto gid = object.value("gid", 0);
-        if (gid == 0) {  // 如果gid为0 (即不存在)，则代表自己绘制的形状（可能是碰撞盒、触发器等，未来按需处理）
-            // TODO
+        if (gid == 0) {     // 如果gid为0 (即不存在)，则代表自己绘制的形状
+            // 非矩形对象会有额外标识（目前不考虑）
+            if (object.value("point", false)) {             // 如果是点对象
+                continue;       // TODO: 点对象的处理方式
+            } else if (object.value("ellipse", false)) {    // 如果是椭圆对象
+                continue;       // TODO: 椭圆对象的处理方式
+            } else if (object.value("polygon", false)) {    // 如果是多边形对象
+                continue;       // TODO: 多边形对象的处理方式
+            } 
+            // 没有这些标识则默认是矩形对象
+            else {  
+                // --- 创建游戏对象并添加TransfromComponent ---
+                const std::string& object_name = object.value("name", "Unnamed");
+                auto game_object = std::make_unique<engine::object::GameObject>(object_name);
+                    // 获取Transform相关信息 （自定义形状的坐标针对左上角）
+                auto position = glm::vec2(object.value("x", 0.0f), object.value("y", 0.0f));
+                auto dst_size = glm::vec2(object.value("width", 0.0f), object.value("height", 0.0f));
+                auto rotation = object.value("rotation", 0.0f);
+                    // 添加TransformComponent，缩放为设定为1.0f
+                game_object->addComponent<engine::component::TransformComponent>(position, glm::vec2(1.0f), rotation);
 
+                // --- 添加碰撞组件和物理组件 ---
+                    // 碰撞盒大小与dst_size相同 
+                auto collider = std::make_unique<engine::physics::AABBCollider>(dst_size);
+                auto* cc = game_object->addComponent<engine::component::ColliderComponent>(std::move(collider));
+                    // 自定义形状通常是trigger类型，除非显示指定 （因此默认为真）
+                cc->setTrigger(object.value("trigger", true));
+                    // 添加物理组件，不受重力影响
+                game_object->addComponent<engine::component::PhysicsComponent>(&scene.getContext().getPhysicsEngine(), false);
+                
+                // 获取标签信息并设置
+                if (auto tag = getTileProperty<std::string>(object, "tag"); tag) {  // 如果有标签
+                    game_object->setTag(tag.value());
+                }
+                // 添加到场景
+                scene.addGameObject(std::move(game_object));
+                spdlog::info("加载对象: '{}' 完成 (类型: 自定义形状)", object_name);
+            }
         } else {        // 如果gid存在，则按照图片解析流程
             // --- 根据gid获取必要信息，每个gid对应一个游戏对象 ---
             auto tile_info = getTileInfoByGid(gid);

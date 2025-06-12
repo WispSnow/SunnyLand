@@ -471,7 +471,7 @@
          "id":261,
          "properties":[
                 {
-                 "name":"solid",
+                 "name":"unisolid",
                  "type":"bool",
                  "value":true
                 }]
