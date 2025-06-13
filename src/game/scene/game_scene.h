@@ -37,6 +37,7 @@ private:
     [[nodiscard]] bool initLevel();               ///< @brief 初始化关卡
     [[nodiscard]] bool initPlayer();              ///< @brief 初始化玩家
     [[nodiscard]] bool initEnemyAndItem();        ///< @brief 初始化敌人和道具
+    [[nodiscard]] bool initUI();                  ///< @brief 初始化UI
 
     void handleObjectCollisions();              ///< @brief 处理游戏对象间的碰撞逻辑（从PhysicsEngine获取信息）
     void handleTileTriggers();                  ///< @brief 处理瓦片触发事件（从PhysicsEngine获取信息）
@@ -55,9 +56,6 @@ private:
      * @param tag 特效标签（决定特效类型,例如"enemy","item"）
      */
     void createEffect(const glm::vec2& center_pos, const std::string& tag);
-
-    // 测试函数
-    void testTextRenderer();
 };
 
 } // namespace game::scene

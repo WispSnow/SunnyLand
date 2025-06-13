@@ -4,13 +4,18 @@
 #include "../core/context.h"
 #include "../physics/physics_engine.h"
 #include "../render/camera.h"
+#include "../ui/ui_manager.h"
 #include <algorithm> // for std::remove_if
 #include <spdlog/spdlog.h>
 
 namespace engine::scene {
 
 Scene::Scene(std::string name, engine::core::Context& context, engine::scene::SceneManager& scene_manager)
-    : scene_name_(std::move(name)), context_(context), scene_manager_(scene_manager), is_initialized_(false) {
+    : scene_name_(std::move(name)), 
+      context_(context), 
+      scene_manager_(scene_manager), 
+      ui_manager_(std::make_unique<engine::ui::UIManager>()),
+      is_initialized_(false) {
     spdlog::trace("场景 '{}' 构造完成。", scene_name_);
 }
 
@@ -42,6 +47,9 @@ void Scene::update(float delta_time) {
         }
     }
 
+    // 更新UI管理器
+    ui_manager_->update(delta_time, context_);
+
     processPendingAdditions();      // 处理待添加（延时添加）的游戏对象
 }
 
@@ -51,11 +59,17 @@ void Scene::render() {
     for (const auto& obj : game_objects_) {
         if (obj) obj->render(context_);
     }
+
+    // 渲染UI管理器
+    ui_manager_->render(context_);
 }
 
 void Scene::handleInput() {
      if (!is_initialized_) return;
 
+    // 处理UI管理器输入
+    if (ui_manager_->handleInput(context_)) return;   // 如果输入事件被UI处理则返回，不再处理游戏对象输入
+    
     // 遍历所有游戏对象，并删除需要移除的对象
     for (auto it = game_objects_.begin(); it != game_objects_.end();) {
         if (*it && !(*it)->isNeedRemove()) {
