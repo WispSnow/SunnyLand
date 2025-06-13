@@ -43,6 +43,7 @@ add_executable(${TARGET}
                 src/engine/render/renderer.cpp
                 src/engine/render/camera.cpp
                 src/engine/render/animation.cpp
+                src/engine/render/text_renderer.cpp
                 src/engine/input/input_manager.cpp
                 src/engine/object/game_object.cpp
                 src/engine/component/sprite_component.cpp

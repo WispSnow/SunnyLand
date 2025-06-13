@@ -6,6 +6,7 @@
 #include "../audio/audio_player.h"
 #include "../render/renderer.h"
 #include "../render/camera.h"
+#include "../render/text_renderer.h"
 #include "../input/input_manager.h"
 #include "../physics/physics_engine.h"
 #include "../scene/scene_manager.h"
@@ -54,6 +55,7 @@ bool GameApp::init() {
     if (!initAudioPlayer()) return false;
     if (!initRenderer()) return false;
     if (!initCamera()) return false;
+    if (!initTextRenderer()) return false;
     if (!initInputManager()) return false;
     if (!initPhysicsEngine()) return false;
 
@@ -214,6 +216,18 @@ bool GameApp::initCamera() {
     return true;
 }
 
+bool GameApp::initTextRenderer()
+{
+    try {
+        text_renderer_ = std::make_unique<engine::render::TextRenderer>(sdl_renderer_, resource_manager_.get());
+    } catch (const std::exception& e) {
+        spdlog::error("初始化文字渲染引擎失败: {}", e.what());
+        return false;
+    }
+    spdlog::trace("文字渲染引擎初始化成功。");
+    return true;
+}
+
 bool GameApp::initInputManager()
 {
     try {
@@ -245,6 +259,7 @@ bool GameApp::initContext()
         context_ = std::make_unique<engine::core::Context>(*input_manager_,
                                                            *renderer_, 
                                                            *camera_, 
+                                                           *text_renderer_,
                                                            *resource_manager_, 
                                                            *physics_engine_, 
                                                            *audio_player_);
