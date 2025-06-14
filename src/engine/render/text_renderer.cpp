@@ -44,7 +44,7 @@ void TextRenderer::close()
 }
 
 void TextRenderer::drawUIText(const std::string &text, const std::string &font_id, int font_size,
-                              const glm::vec2 &position, const SDL_FColor &color)
+                              const glm::vec2 &position, const engine::utils::FColor &color)
 {
     /* 构造函数已经保证了必要指针不会为空，这里不需要再检查 */
     TTF_Font* font = resource_manager_->getFont(font_id, font_size);
@@ -77,7 +77,7 @@ void TextRenderer::drawUIText(const std::string &text, const std::string &font_i
 }
 
 void TextRenderer::drawText(const Camera &camera, const std::string &text, const std::string &font_id, int font_size, 
-                            const glm::vec2 &position, const SDL_FColor &color)
+                            const glm::vec2 &position, const engine::utils::FColor &color)
 {
     // 应用相机变换
     glm::vec2 position_screen = camera.worldToScreen(position);

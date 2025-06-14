@@ -43,15 +43,16 @@ bool HealthComponent::takeDamage(int damage_amount) {
     return true;        // 造成伤害，返回true
 }
 
-void HealthComponent::heal(int heal_amount) {
+int HealthComponent::heal(int heal_amount) {
     if (heal_amount <= 0 || !isAlive()) {
-        return; // 不治疗或已经死亡
+        return current_health_; // 不治疗或已经死亡
     }
 
     current_health_ += heal_amount;
     current_health_ = std::min(max_health_, current_health_); // 防止超过最大生命值
     spdlog::debug("游戏对象 '{}' 治疗了 {} 点，当前生命值: {}/{}。",
                   owner_ ? owner_->getName() : "Unknown", heal_amount, current_health_, max_health_);
+    return current_health_;
 }
 
 void HealthComponent::setInvincible(float duration)

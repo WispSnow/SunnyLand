@@ -38,7 +38,7 @@ public:
      * @return bool 如果成功造成伤害，则返回 true，否则返回 false。
      */
     bool takeDamage(int damage_amount);
-    void heal(int heal_amount);             ///< @brief 治疗 GameObject，增加当前生命值（不超过最大生命值）。
+    int heal(int heal_amount);             ///< @brief 治疗 GameObject，增加当前生命值（不超过最大生命值）,返回治疗后生命值
 
     // --- Getters and Setters ---
     bool isAlive() const { return current_health_ > 0; }        ///< @brief 检查 GameObject 是否存活（当前生命值大于 0）。
