@@ -21,6 +21,7 @@
 #include "../../engine/ui/ui_panel.h"
 #include "../../engine/ui/ui_label.h"
 #include "../../engine/ui/ui_image.h"
+#include "../../engine/ui/ui_button.h"
 #include "../../engine/utils/math.h"
 #include "../component/ai_component.h"
 #include "../component/ai/patrol_behavior.h"
@@ -202,6 +203,7 @@ bool GameScene::initUI()
     
     createScoreUI();
     createHealthUI();
+    createTestButton();
     return true;
 }
 
@@ -445,6 +447,23 @@ void GameScene::healWithUI(int amount)
 {
     player_->getComponent<engine::component::HealthComponent>()->heal(amount);
     updateHealthWithUI();                              // 更新生命值与UI
+}
+
+void GameScene::createTestButton()
+{
+    auto test_button = std::make_unique<engine::ui::UIButton>(context_,
+                                                              "assets/textures/UI/buttons/Start1.png",
+                                                              "assets/textures/UI/buttons/Start2.png",
+                                                              "assets/textures/UI/buttons/Start3.png",
+                                                              glm::vec2(100.0f, 100.0f),
+                                                              glm::vec2(0.0f),      // 采用图片大小
+                                                              [this](){ this->testButtonClicked(); });
+    ui_manager_->addElement(std::move(test_button));
+}
+
+void GameScene::testButtonClicked()
+{
+    spdlog::info("测试按钮被点击");
 }
 
 } // namespace game::scene 
