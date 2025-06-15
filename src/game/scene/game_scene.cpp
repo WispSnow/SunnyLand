@@ -70,9 +70,7 @@ void GameScene::init() {
         context_.getInputManager().setShouldQuit(true);
         return;
     }
-    // 设置音量
-    context_.getAudioPlayer().setMusicVolume(0.2f);  // 设置背景音乐音量为20%
-    context_.getAudioPlayer().setSoundVolume(0.5f);  // 设置音效音量为50%
+
     // 播放背景音乐 (循环，淡入1秒)
     // context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
 
@@ -125,6 +123,7 @@ bool GameScene::initLevel()
     // 设置相机边界
     auto world_size = main_layer->getComponent<engine::component::TileLayerComponent>()->getWorldSize();
     context_.getCamera().setLimitBounds(engine::utils::Rect(glm::vec2(0.0f), world_size));
+    context_.getCamera().setPosition(glm::vec2(0.0f));     // 开始时重置相机位置，以免切换场景时晃动
 
     // 设置世界边界
     context_.getPhysicsEngine().setWorldBounds(engine::utils::Rect(glm::vec2(0.0f), world_size));
@@ -203,7 +202,6 @@ bool GameScene::initUI()
     
     createScoreUI();
     createHealthUI();
-    createTestButton();
     return true;
 }
 
@@ -447,23 +445,6 @@ void GameScene::healWithUI(int amount)
 {
     player_->getComponent<engine::component::HealthComponent>()->heal(amount);
     updateHealthWithUI();                              // 更新生命值与UI
-}
-
-void GameScene::createTestButton()
-{
-    auto test_button = std::make_unique<engine::ui::UIButton>(context_,
-                                                              "assets/textures/UI/buttons/Start1.png",
-                                                              "assets/textures/UI/buttons/Start2.png",
-                                                              "assets/textures/UI/buttons/Start3.png",
-                                                              glm::vec2(100.0f, 100.0f),
-                                                              glm::vec2(0.0f),      // 采用图片大小
-                                                              [this](){ this->testButtonClicked(); });
-    ui_manager_->addElement(std::move(test_button));
-}
-
-void GameScene::testButtonClicked()
-{
-    spdlog::info("测试按钮被点击");
 }
 
 } // namespace game::scene 

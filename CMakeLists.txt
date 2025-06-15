@@ -71,6 +71,8 @@ add_executable(${TARGET}
                 src/engine/ui/state/ui_pressed_state.cpp
                 src/engine/ui/state/ui_hover_state.cpp
                 src/game/scene/game_scene.cpp
+                src/game/scene/title_scene.cpp
+                src/game/scene/helps_scene.cpp
                 src/game/component/player_component.cpp
                 src/game/component/ai_component.cpp
                 src/game/component/state/player_state.cpp

@@ -71,11 +71,6 @@ private:
     void addScoreWithUI(int score);                 ///< @brief 增加得分，同时更新UI
     void healWithUI(int amount);                    ///< @brief 增加生命，同时更新UI
     void updateHealthWithUI();                      ///< @brief 更新生命值UI (只适用最大生命值不变的情况)
-
-    // --- 测试函数 ---
-    void createTestButton();                       ///< @brief 创建测试按钮
-    void testButtonClicked();                      ///< @brief 测试按钮点击事件
-
 };
 
 } // namespace game::scene
