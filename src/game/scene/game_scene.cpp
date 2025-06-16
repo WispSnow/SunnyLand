@@ -1,5 +1,6 @@
 #include "game_scene.h"
 #include "menu_scene.h"
+#include "end_scene.h"
 #include "../component/player_component.h"
 #include "../../engine/core/context.h"
 #include "../../engine/core/game_state.h"
@@ -52,6 +53,7 @@ void GameScene::init() {
     }
     spdlog::trace("GameScene 初始化开始...");
     context_.getGameState().setState(engine::core::State::Playing);
+    game_session_data_->syncHighScore("assets/save.json");      // 更新最高分
 
     if (!initLevel()) {
         spdlog::error("关卡初始化失败，无法继续。");
@@ -75,7 +77,7 @@ void GameScene::init() {
     }
 
     // 播放背景音乐 (循环，淡入1秒)
-    // context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
+    context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
 
     Scene::init();
     spdlog::trace("GameScene 初始化完成。");
@@ -85,6 +87,17 @@ void GameScene::update(float delta_time) {
     Scene::update(delta_time);
     handleObjectCollisions();
     handleTileTriggers();
+
+    // 玩家掉出地图下方则判断为失败
+    if (player_ ) {
+        auto pos = player_->getComponent<engine::component::TransformComponent>()->getPosition();
+        auto world_rect = context_.getPhysicsEngine().getWorldBounds();
+        // 多100像素冗余量
+        if (world_rect && pos.y > world_rect->position.y + world_rect->size.y + 100.0f) {
+            spdlog::debug("玩家掉出地图下方，游戏失败");
+            showEndScene(false);
+        }
+    }
 }
 
 void GameScene::render() {
@@ -153,6 +166,15 @@ bool GameScene::initPlayer()
     auto* player_component = player_->addComponent<game::component::PlayerComponent>();
     if (!player_component) {
         spdlog::error("无法添加 PlayerComponent 到玩家对象");
+        return false;
+    }
+
+    // 从SessionData中更新玩家生命值
+    if (auto health_component = player_->getComponent<engine::component::HealthComponent>(); health_component) {
+        health_component->setMaxHealth(game_session_data_->getMaxHealth());
+        health_component->setCurrentHealth(game_session_data_->getCurrentHealth());
+    } else {
+        spdlog::error("玩家对象缺少 HealthComponent 组件，无法设置生命值");
         return false;
     }
 
@@ -247,6 +269,12 @@ void GameScene::handleObjectCollisions()
         } else if (obj2->getName() == "player" && obj1->getTag() == "next_level") {
             toNextLevel(obj1);
         }
+        // 处理玩家与结束触发器碰撞
+        else if (obj1->getName() == "player" && obj2->getName() == "win") {
+            showEndScene(true);
+        } else if (obj2->getName() == "player" && obj1->getName() == "win") {
+            showEndScene(true);
+        }
     }
 }
 
@@ -340,6 +368,14 @@ void GameScene::toNextLevel(engine::object::GameObject *trigger)
     scene_manager_.requestReplaceScene(std::move(next_scene));
 }
 
+void GameScene::showEndScene(bool is_win)
+{
+    spdlog::debug("显示结束场景，游戏 {}", is_win ? "胜利" : "失败");
+    game_session_data_->setIsWin(is_win);
+    auto end_scene = std::make_unique<game::scene::EndScene>(context_, scene_manager_, game_session_data_);
+    scene_manager_.requestPushScene(std::move(end_scene));
+}
+
 void GameScene::createEffect(const glm::vec2& center_pos, const std::string &tag)
 {
     // --- 创建游戏对象和变换组件 ---
@@ -412,11 +448,13 @@ void GameScene::createHealthUI() {
         auto bg_icon = std::make_unique<engine::ui::UIImage>(empty_heart_tex, icon_pos, icon_size);
         health_panel_->addChild(std::move(bg_icon));
     }
-    for (int i = 0; i < current_health; ++i) {      // 创建前景图标
+    for (int i = 0; i < max_health; ++i) {          // 创建前景图标
         glm::vec2 icon_pos = {start_x + i * (icon_width + spacing), start_y};
         glm::vec2 icon_size = {icon_width, icon_height};
 
         auto fg_icon = std::make_unique<engine::ui::UIImage>(full_heart_tex, icon_pos, icon_size);
+        bool is_visible = (i < current_health);  // 前景图标的可见性取决于当前生命值
+        fg_icon->setVisible(is_visible);         // 设置前景图标的可见性
         health_panel_->addChild(std::move(fg_icon));
     }
     // 将UIPanel添加到UI管理器中
@@ -429,7 +467,6 @@ void GameScene::updateHealthWithUI()
         spdlog::error("玩家对象或 HealthPanel 不存在，无法更新生命值UI");
         return;
     }
-
     // 获取当前生命值并更新游戏数据
     auto current_health = player_->getComponent<engine::component::HealthComponent>()->getCurrentHealth();
     game_session_data_->setCurrentHealth(current_health);

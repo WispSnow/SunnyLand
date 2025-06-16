@@ -54,6 +54,7 @@ private:
     void playerVSItemCollision(engine::object::GameObject* player, engine::object::GameObject* item);    ///< @brief 玩家与道具碰撞处理
 
     void toNextLevel(engine::object::GameObject* trigger);          ///< @brief 进入下一个关卡
+    void showEndScene(bool is_win);                                 ///< @brief 显示结束场景
 
     /// @brief 根据关卡名称获取对应的地图文件路径
     std::string levelNameToPath(const std::string& level_name) const { return "assets/maps/" + level_name + ".tmj"; }

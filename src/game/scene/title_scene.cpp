@@ -45,6 +45,11 @@ void TitleScene::init() {
          spdlog::error("加载背景失败");
          return;
     }
+    session_data_->syncHighScore("assets/save.json");      // 更新最高分
+
+    // 重置相机坐标，不限制边界
+    context_.getCamera().setPosition(glm::vec2(0.0f, 0.0f));
+    context_.getCamera().setLimitBounds(std::nullopt);  // 若无这一行，从GameScene返回到标题场景时，相机会限制在地图边界内
 
     // 创建 UI 元素
     createUI();
@@ -69,7 +74,7 @@ void TitleScene::createUI() {
     context_.getAudioPlayer().setSoundVolume(0.5f);  // 设置音效音量为50%
 
     // 设置背景音乐
-    // context_.getAudioPlayer().playMusic("assets/audio/platformer_level03_loop.ogg");
+    context_.getAudioPlayer().playMusic("assets/audio/platformer_level03_loop.ogg");
 
     // 创建标题图片 (假设不知道大小)
     auto title_image = std::make_unique<engine::ui::UIImage>("assets/textures/UI/title-screen.png");
@@ -203,6 +208,7 @@ void TitleScene::onHelpsClick() {
 
 void TitleScene::onQuitClick() {
     spdlog::debug("退出按钮被点击。");
+    session_data_->syncHighScore("assets/save.json");   // 退出前先同步最高分
     context_.getInputManager().setShouldQuit(true);
 }
 

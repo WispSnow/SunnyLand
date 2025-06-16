@@ -75,6 +75,7 @@ add_executable(${TARGET}
                 src/game/scene/title_scene.cpp
                 src/game/scene/helps_scene.cpp
                 src/game/scene/menu_scene.cpp
+                src/game/scene/end_scene.cpp
                 src/game/component/player_component.cpp
                 src/game/component/ai_component.cpp
                 src/game/component/state/player_state.cpp

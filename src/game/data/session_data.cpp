@@ -31,6 +31,7 @@ void SessionData::reset() {
     current_score_ = 0;
     level_health_ = 3;
     level_score_ = 0;
+    is_win_ = false;
     map_path_ = "assets/maps/level1.tmj";
     spdlog::info("SessionData reset.");
 }
@@ -89,7 +90,7 @@ bool SessionData::loadFromFile(const std::string& filename) {
         current_score_ = level_score_ = j.value("level_score", 0);
         current_health_ = level_health_ = j.value("level_health", 3);
         max_health_ = j.value("max_health", 3); // 使用合理的默认值
-        high_score_ = j.value("high_score", 0);
+        high_score_ = glm::max(j.value("high_score", 0), high_score_);  // 文件中的最高分，与当前最高分取最大值
         map_path_ = j.value("map_path", "assets/maps/level1.tmj"); // 默认起始地图
 
         spdlog::info("游戏数据成功加载: {}", filename);
@@ -97,6 +98,41 @@ bool SessionData::loadFromFile(const std::string& filename) {
     } catch (const std::exception& e) {
         spdlog::error("读档时出现错误 {}: {}", filename, e.what());
         reset();
+        return false;
+    }
+}
+
+bool SessionData::syncHighScore(const std::string& filename)
+{
+    try {
+        // 打开文件进行读取
+        std::fstream fs(filename);
+        if (!fs.is_open()) {
+            spdlog::warn("找不到文件: {}, 无法进行同步", filename);
+            return false;
+        }
+
+        // 从文件解析 JSON 数据
+        nlohmann::json j;
+        fs >> j;
+        auto high_score_in_file = j.value("high_score", 0);
+
+        // 根据文件中的最高分和当前最高分来决定处理方式
+        if (high_score_in_file < high_score_) {     // 文件中的最高分 低于 当前最高分
+            j["high_score"] = high_score_;
+            fs.seekp(0);                // 文件指针回到文件开头
+            fs << j.dump(4);            // 将JSON对象写入文件
+            spdlog::debug("最高分高于存档文件，已将最高分保存到存档中");
+        } else if (high_score_in_file > high_score_) {  // 文件中的最高分 高于 当前最高分
+            high_score_ = high_score_in_file;
+            spdlog::debug("存档文件中的最高分高于当前最高分，已更新当前最高分");
+        } else {
+            spdlog::debug("存档文件中的最高分与当前最高分相同，无需更新");
+        }
+        fs.close();
+        return true;
+    } catch (const std::exception& e) {
+        spdlog::error("同步最高分时出现错误 {}: {}", filename, e.what());
         return false;
     }
 }
