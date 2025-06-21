@@ -84,10 +84,10 @@ public:
     engine::utils::Alignment getAlignment() const { return alignment_; }        ///< @brief 获取对齐方式
 
     // Setters
-    void setSpriteById(const std::string& texture_id, const std::optional<SDL_FRect>& source_rect_opt = std::nullopt); ///< @brief 设置精灵对象
+    void setSpriteById(const std::string& texture_id, std::optional<SDL_FRect> source_rect_opt = std::nullopt); ///< @brief 设置精灵对象
     void setFlipped(bool flipped) { sprite_.setFlipped(flipped); }                                             ///< @brief 设置是否翻转
     void setHidden(bool hidden) { is_hidden_ = hidden; }                                                      ///< @brief 设置是否隐藏
-    void setSourceRect(const std::optional<SDL_FRect>& source_rect_opt);                                     ///< @brief 设置源矩形
+    void setSourceRect(std::optional<SDL_FRect> source_rect_opt);                                     ///< @brief 设置源矩形
     void setAlignment(engine::utils::Alignment anchor);                                                     ///< @brief 设置对齐方式
 
 private:

@@ -43,9 +43,9 @@ public:
     State getCurrentState() const { return current_state_; }
     void setState(State new_state);
     glm::vec2 getWindowSize() const;
-    void setWindowSize(glm::vec2 new_size);
+    void setWindowSize(const glm::vec2& window_size);   // 这里并不涉及到(成员变量)赋值，所以不需要move
     glm::vec2 getLogicalSize() const;
-    void setLogicalSize(glm::vec2 new_size);
+    void setLogicalSize(const glm::vec2& logical_size);
 
 
     // --- 便捷查询方法 ---

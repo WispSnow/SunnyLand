@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/vec2.hpp>
+#include <utility>
 
 namespace engine::physics {
 
@@ -25,7 +26,7 @@ public:
     virtual ~Collider() = default;
     virtual ColliderType getType() const = 0;   ///< @brief 获取碰撞器的类型。
 
-    void setAABBSize(const glm::vec2& size) { aabb_size_ = size; }  ///< @brief 设置最小包围盒的尺寸（宽度和高度）。
+    void setAABBSize(glm::vec2 size) { aabb_size_ = std::move(size); }  ///< @brief 设置最小包围盒的尺寸（宽度和高度）。
     const glm::vec2& getAABBSize() const { return aabb_size_; }     ///< @brief 获取最小包围盒的尺寸（宽度和高度）。
 };
 
@@ -41,13 +42,13 @@ public:
      * @brief 构造函数。
      * @param size 包围盒的宽度和高度。
      */
-    explicit AABBCollider(const glm::vec2& size) : size_(size) { setAABBSize(size); }
+    explicit AABBCollider(glm::vec2 size) : size_(std::move(size)) { setAABBSize(size_); }
     ~AABBCollider() override = default;
 
     // --- Getters and Setters ---
     ColliderType getType() const override { return ColliderType::AABB; }
     const glm::vec2& getSize() const { return size_; }
-    void setSize(const glm::vec2& size) { size_ = size; }
+    void setSize(glm::vec2 size) { size_ = std::move(size); }
 };
 
 /**

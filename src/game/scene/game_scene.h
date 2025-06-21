@@ -64,7 +64,7 @@ private:
      * @param center_pos 特效中心位置
      * @param tag 特效标签（决定特效类型,例如"enemy","item"）
      */
-    void createEffect(const glm::vec2& center_pos, const std::string& tag);
+    void createEffect(glm::vec2 center_pos, std::string tag);
 
     // --- UI 相关函数 ---
     void createScoreUI();                           ///< @brief 创建得分UI

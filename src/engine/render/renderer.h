@@ -57,7 +57,7 @@ public:
      * @param scale 缩放因子。
      */
     void drawParallax(const Camera& camera, const Sprite& sprite, const glm::vec2& position, 
-                      const glm::vec2& scroll_factor, const glm::bvec2& repeat = {true, true}, const glm::vec2& scale = {1.0f, 1.0f});
+                      const glm::vec2& scroll_factor, glm::bvec2 repeat = {true, true}, const glm::vec2& scale = {1.0f, 1.0f});
 
     /**
      * @brief 在屏幕坐标中直接渲染一个用于UI的Sprite对象。

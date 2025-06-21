@@ -6,8 +6,8 @@
 
 namespace engine::ui {
 
-UIPanel::UIPanel(const glm::vec2& position, const glm::vec2& size, const std::optional<engine::utils::FColor>& background_color)
-    : UIElement(position, size), background_color_(background_color)
+UIPanel::UIPanel(glm::vec2 position, glm::vec2 size, std::optional<engine::utils::FColor> background_color)
+    : UIElement(std::move(position), std::move(size)), background_color_(std::move(background_color))
 {
     spdlog::trace("UIPanel 构造完成。");
 }

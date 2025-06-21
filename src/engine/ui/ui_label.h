@@ -37,8 +37,8 @@ public:
             const std::string& text,
             const std::string& font_id,
             int font_size = 16,
-            const engine::utils::FColor& text_color = {1.0f, 1.0f, 1.0f, 1.0f},
-            const glm::vec2& position = {0.0f, 0.0f});
+            engine::utils::FColor text_color = {1.0f, 1.0f, 1.0f, 1.0f},
+            glm::vec2 position = {0.0f, 0.0f});
 
     // --- 核心方法 ---
     void render(engine::core::Context& context) override;
@@ -52,7 +52,7 @@ public:
     void setText(const std::string& text);                      ///< @brief 设置文本内容, 同时更新尺寸
     void setFontId(const std::string& font_id);                 ///< @brief 设置字体ID, 同时更新尺寸
     void setFontSize(int font_size);                            ///< @brief 设置字体大小, 同时更新尺寸
-    void setTextFColor(const engine::utils::FColor& text_fcolor);
+    void setTextFColor(engine::utils::FColor text_fcolor);
 
 };
 

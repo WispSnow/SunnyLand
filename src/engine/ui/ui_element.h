@@ -33,7 +33,7 @@ public:
      * @param position 初始局部位置
      * @param size 初始大小
      */
-    explicit UIElement(const glm::vec2& position = {0.0f, 0.0f}, const glm::vec2& size = {0.0f, 0.0f});
+    explicit UIElement(glm::vec2 position = {0.0f, 0.0f}, glm::vec2 size = {0.0f, 0.0f});
 
     /**
      * @brief 虚析构函数，确保派生类正确清理
@@ -58,10 +58,10 @@ public:
     UIElement* getParent() const { return parent_; }                ///< @brief 获取父元素
     const std::vector<std::unique_ptr<UIElement>>& getChildren() const { return children_; } ///< @brief 获取子元素列表
 
-    void setSize(const glm::vec2& size) { size_ = size; }           ///< @brief 设置元素大小
+    void setSize(glm::vec2 size) { size_ = std::move(size); }           ///< @brief 设置元素大小
     void setVisible(bool visible) { visible_ = visible; }           ///< @brief 设置元素的可见性
     void setParent(UIElement* parent) { parent_ = parent; }         ///< @brief 设置父节点
-    void setPosition(const glm::vec2& position) { position_ = position; }   ///< @brief 设置元素位置(相对于父节点)
+    void setPosition(glm::vec2 position) { position_ = std::move(position); }   ///< @brief 设置元素位置(相对于父节点)
     void setNeedRemove(bool need_remove) { need_remove_ = need_remove; }    ///< @brief 设置元素是否需要移除
 
     // --- 辅助方法 ---

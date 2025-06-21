@@ -5,9 +5,9 @@
 
 namespace engine::component { 
 
-void TransformComponent::setScale(const glm::vec2 &scale)
+void TransformComponent::setScale(glm::vec2 scale)
 {
-    scale_ = scale;
+    scale_ = std::move(scale);
     if (owner_) {
         auto sprite_comp = owner_->getComponent<SpriteComponent>();
         if (sprite_comp) {

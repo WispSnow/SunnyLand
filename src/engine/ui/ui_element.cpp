@@ -6,8 +6,8 @@
 
 namespace engine::ui {
 
-UIElement::UIElement(const glm::vec2& position, const glm::vec2& size)
-    : position_(position), size_(size) {
+UIElement::UIElement(glm::vec2 position, glm::vec2 size)
+    : position_(std::move(position)), size_(std::move(size)) {
 }   
 
 bool UIElement::handleInput(engine::core::Context& context) {

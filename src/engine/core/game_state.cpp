@@ -16,7 +16,7 @@ GameState::GameState(SDL_Window* window, SDL_Renderer* renderer, State initial_s
 void GameState::setState(State new_state) {
     if (current_state_ != new_state) {
         spdlog::debug("游戏状态改变");
-        current_state_ = new_state;
+        current_state_ = std::move(new_state);
     } else {
         spdlog::debug("尝试设置相同的游戏状态，跳过");
     }
@@ -30,9 +30,9 @@ glm::vec2 GameState::getWindowSize() const
     return glm::vec2(width, height);
 }
 
-void GameState::setWindowSize(glm::vec2 new_size)
+void GameState::setWindowSize(const glm::vec2& window_size)
 {
-    SDL_SetWindowSize(window_, static_cast<int>(new_size.x), static_cast<int>(new_size.y));
+    SDL_SetWindowSize(window_, static_cast<int>(window_size.x), static_cast<int>(window_size.y));
 }
 
 glm::vec2 GameState::getLogicalSize() const
@@ -44,13 +44,13 @@ glm::vec2 GameState::getLogicalSize() const
 }
 
 
-void GameState::setLogicalSize(glm::vec2 new_size)
+void GameState::setLogicalSize(const glm::vec2& logical_size)
 {
     SDL_SetRenderLogicalPresentation(renderer_, 
-                                     static_cast<int>(new_size.x), 
-                                     static_cast<int>(new_size.y),
+                                     static_cast<int>(logical_size.x), 
+                                     static_cast<int>(logical_size.y),
                                      SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    spdlog::trace("逻辑分辨率设置为: {}x{}", new_size.x, new_size.y);
+    spdlog::trace("逻辑分辨率设置为: {}x{}", logical_size.x, logical_size.y);
 }
 
 

@@ -7,12 +7,12 @@
 namespace engine::ui {
 
 UIImage::UIImage(const std::string& texture_id,
-                 const glm::vec2& position,
-                 const glm::vec2& size,
-                 const std::optional<SDL_FRect>& source_rect,
+                 glm::vec2 position,
+                 glm::vec2 size,
+                 std::optional<SDL_FRect> source_rect,
                  bool is_flipped)
-    : UIElement(position, size),
-      sprite_(texture_id, source_rect, is_flipped)
+    : UIElement(std::move(position), std::move(size)),
+      sprite_(texture_id, std::move(source_rect), is_flipped)
 {
     if (texture_id.empty()) {
         spdlog::warn("创建了一个空纹理ID的UIImage。");

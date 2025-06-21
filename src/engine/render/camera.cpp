@@ -5,13 +5,17 @@
 
 namespace engine::render {
 
-Camera::Camera(const glm::vec2& viewport_size, const glm::vec2& position, const std::optional<engine::utils::Rect> limit_bounds)
-    : viewport_size_(viewport_size), position_(position), limit_bounds_(limit_bounds) {
+Camera::Camera(glm::vec2 viewport_size, 
+               glm::vec2 position, 
+               std::optional<engine::utils::Rect> limit_bounds)
+    : viewport_size_(std::move(viewport_size)), 
+      position_(std::move(position)), 
+      limit_bounds_(std::move(limit_bounds)) {
     spdlog::trace("Camera 初始化成功，位置: {},{}", position_.x, position_.y);
 }
 
-void Camera::setPosition(const glm::vec2& position) {
-    position_ = position;
+void Camera::setPosition(glm::vec2 position) {
+    position_ = std::move(position);
     clampPosition();
 }
 
@@ -44,9 +48,9 @@ void Camera::move(const glm::vec2 &offset)
     clampPosition();
 }
 
-void Camera::setLimitBounds(std::optional<engine::utils::Rect> bounds)
+void Camera::setLimitBounds(std::optional<engine::utils::Rect> limit_bounds)
 {
-    limit_bounds_ = bounds;
+    limit_bounds_ = std::move(limit_bounds);
     clampPosition(); // 设置边界后，立即应用限制
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "./component.h"
+#include <utility>
 #include <glm/vec2.hpp>
 
 namespace engine::component {
@@ -22,7 +23,7 @@ public:
      * @param rotation 旋转
      */
     TransformComponent(glm::vec2 position = {0.0f, 0.0f}, glm::vec2 scale = {1.0f, 1.0f}, float rotation = 0.0f)
-        : position_(position), scale_(scale), rotation_(rotation) {}
+        : position_(std::move(position)), scale_(std::move(scale)), rotation_(rotation) {}
 
     // 禁止拷贝和移动
     TransformComponent(const TransformComponent&) = delete;
@@ -34,9 +35,9 @@ public:
     const glm::vec2& getPosition() const { return position_; }              ///< @brief 获取位置
     float getRotation() const { return rotation_; }                         ///< @brief 获取旋转
     const glm::vec2& getScale() const { return scale_; }                    ///< @brief 获取缩放
-    void setPosition(const glm::vec2& position) { position_ = position; }   ///< @brief 设置位置
-    void setRotation(float rotation) { rotation_ = rotation; }              ///< @brief 设置旋转
-    void setScale(const glm::vec2& scale);                                  ///< @brief 设置缩放，应用缩放时应同步更新Sprite偏移量
+    void setPosition(glm::vec2 position) { position_ = std::move(position); }   ///< @brief 设置位置
+    void setRotation(float rotation) { rotation_ = rotation; }                 ///< @brief 设置旋转角度
+    void setScale(glm::vec2 scale);                                         ///< @brief 设置缩放，应用缩放时应同步更新Sprite偏移量
     void translate(const glm::vec2& offset) { position_ += offset; }        ///< @brief 平移
 
 private:

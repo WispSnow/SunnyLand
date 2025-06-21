@@ -1,6 +1,7 @@
 #pragma once
 #include "component.h"
 #include "glm/vec2.hpp"
+#include <utility>
 
 namespace engine::physics {
     class PhysicsEngine;
@@ -65,7 +66,7 @@ public:
     void setEnabled(bool enabled) { enabled_ = enabled; }                       ///< @brief 设置组件是否启用
     void setMass(float mass) { mass_ = (mass >= 0.0f) ? mass : 1.0f; }          ///< @brief 设置质量，质量不能为负
     void setUseGravity(bool use_gravity) { use_gravity_ = use_gravity; }        ///< @brief 设置组件是否受重力影响
-    void setVelocity(const glm::vec2& velocity) { velocity_ = velocity; }       ///< @brief 设置速度
+    void setVelocity(glm::vec2 velocity) { velocity_ = std::move(velocity); }       ///< @brief 设置速度
     const glm::vec2& getVelocity() const { return velocity_; }                  ///< @brief 获取当前速度
     TransformComponent* getTransform() const { return transform_; }             ///< @brief 获取TransformComponent指针
 

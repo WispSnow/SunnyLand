@@ -48,7 +48,7 @@ public:
      * @param source_rect 纹理图集上此帧的区域。
      * @param duration 此帧应显示的持续时间（秒）。
      */
-    void addFrame(const SDL_FRect& source_rect, float duration);
+    void addFrame(SDL_FRect source_rect, float duration);
 
     /**
      * @brief 获取在给定时间点应该显示的动画帧。

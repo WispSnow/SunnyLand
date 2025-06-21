@@ -61,7 +61,7 @@ void Renderer::drawSprite(const Camera& camera, const Sprite& sprite, const glm:
     }   
 }
 
-void Renderer::drawParallax(const Camera &camera, const Sprite &sprite, const glm::vec2 &position, const glm::vec2 &scroll_factor, const glm::bvec2 &repeat, const glm::vec2 &scale)
+void Renderer::drawParallax(const Camera &camera, const Sprite &sprite, const glm::vec2 &position, const glm::vec2 &scroll_factor, glm::bvec2 repeat, const glm::vec2 &scale)
 {
     auto texture = resource_manager_->getTexture(sprite.getTextureId());
     if (!texture) {

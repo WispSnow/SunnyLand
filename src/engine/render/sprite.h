@@ -43,7 +43,7 @@ public:
     bool isFlipped() const { return is_flipped_; }                                                      ///< @brief 获取是否水平翻转
 
     void setTextureId(const std::string& texture_id) { texture_id_ = texture_id; }                      ///< @brief 设置纹理 ID
-    void setSourceRect(const std::optional<SDL_FRect>& source_rect) { source_rect_ = source_rect; }     ///< @brief 设置源矩形 (如果使用整个纹理则为 std::nullopt)
+    void setSourceRect(std::optional<SDL_FRect> source_rect) { source_rect_ = std::move(source_rect); } ///< @brief 设置源矩形 (如果使用整个纹理则为 std::nullopt)
     void setFlipped(bool flipped) { is_flipped_ = flipped; }                                            ///< @brief 设置是否水平翻转
 
 };

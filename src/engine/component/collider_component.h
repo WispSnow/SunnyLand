@@ -60,7 +60,7 @@ public:
     bool isActive() const { return is_active_; }        ///< @brief 检查此碰撞器是否激活。
 
     void setAlignment(engine::utils::Alignment anchor);             ///< @brief 设置新的对齐方式并重新计算偏移量。
-    void setOffset(const glm::vec2& offset) { offset_ = offset; }   ///< @brief 设置偏移量。
+    void setOffset(glm::vec2 offset) { offset_ = std::move(offset); }   ///< @brief 设置偏移量。
     void setTrigger(bool is_trigger) { is_trigger_ = is_trigger; }  ///< @brief 设置此碰撞器是否为触发器。
     void setActive(bool is_active) { is_active_ = is_active; }      ///< @brief 设置此碰撞器是否激活。
 

@@ -21,8 +21,15 @@ private:
     engine::component::TransformComponent* target_ = nullptr;                ///< @brief 跟随目标变换组件，空值表示不跟随
 
 public:
-
-    Camera(const glm::vec2& viewport_size, const glm::vec2& position = glm::vec2(0.0f, 0.0f), const std::optional<engine::utils::Rect> limit_bounds = std::nullopt);
+    /**
+     * @brief 构造相机对象
+     * @param viewport_size 视口大小
+     * @param position 相机位置
+     * @param limit_bounds 限制相机的移动范围
+     */
+    Camera(glm::vec2 viewport_size, 
+           glm::vec2 position = glm::vec2(0.0f, 0.0f), 
+           std::optional<engine::utils::Rect> limit_bounds = std::nullopt);
     
     void update(float delta_time);                                          ///< @brief 更新相机位置
     void move(const glm::vec2& offset);                                     ///< @brief 移动相机
@@ -31,8 +38,8 @@ public:
     glm::vec2 worldToScreenWithParallax(const glm::vec2& world_pos, const glm::vec2& scroll_factor) const; ///< @brief 世界坐标转屏幕坐标，考虑视差滚动
     glm::vec2 screenToWorld(const glm::vec2& screen_pos) const;             ///< @brief 屏幕坐标转世界坐标
 
-    void setPosition(const glm::vec2& position);                            ///< @brief 设置相机位置
-    void setLimitBounds(std::optional<engine::utils::Rect> bounds);         ///< @brief 设置限制相机的移动范围
+    void setPosition(glm::vec2 position);                                   ///< @brief 设置相机位置
+    void setLimitBounds(std::optional<engine::utils::Rect> limit_bounds);   ///< @brief 设置限制相机的移动范围
     void setTarget(engine::component::TransformComponent* target);          ///< @brief 设置跟随目标变换组件
 
     const glm::vec2& getPosition() const;                                   ///< @brief 获取相机位置
