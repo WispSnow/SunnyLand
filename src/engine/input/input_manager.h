@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 #include <variant>
@@ -49,9 +50,9 @@ public:
 
 
     // 动作状态检查
-    bool isActionDown(const std::string& action_name) const;        ///< @brief 动作当前是否触发 (持续按下或本帧按下)
-    bool isActionPressed(const std::string& action_name) const;     ///< @brief 动作是否在本帧刚刚按下
-    bool isActionReleased(const std::string& action_name) const;    ///< @brief 动作是否在本帧刚刚释放
+    bool isActionDown(std::string_view action_name) const;        ///< @brief 动作当前是否触发 (持续按下或本帧按下)
+    bool isActionPressed(std::string_view action_name) const;     ///< @brief 动作是否在本帧刚刚按下
+    bool isActionReleased(std::string_view action_name) const;    ///< @brief 动作是否在本帧刚刚释放
 
     bool shouldQuit() const;                                         ///< @brief 查询退出状态
     void setShouldQuit(bool should_quit);                            ///< @brief 设置退出状态
@@ -63,9 +64,9 @@ private:
     void processEvent(const SDL_Event& event);                      ///< @brief 处理 SDL 事件（将按键转换为动作状态）
     void initializeMappings(const engine::core::Config* config);                            ///< @brief 根据 Config配置初始化映射表
 
-    void updateActionState(const std::string& action_name, bool is_input_active, bool is_repeat_event); ///< @brief 辅助更新动作状态
-    SDL_Scancode scancodeFromString(const std::string& key_name);                           ///< @brief 将字符串键名转换为 SDL_Scancode
-    Uint32 mouseButtonFromString(const std::string& button_name);                       ///< @brief 将字符串按钮名转换为 SDL_Button
+    void updateActionState(std::string_view action_name, bool is_input_active, bool is_repeat_event); ///< @brief 辅助更新动作状态
+    SDL_Scancode scancodeFromString(std::string_view key_name);                           ///< @brief 将字符串键名转换为 SDL_Scancode
+    Uint32 mouseButtonFromString(std::string_view button_name);                       ///< @brief 将字符串按钮名转换为 SDL_Button
 };
 
 } // namespace engine::input 

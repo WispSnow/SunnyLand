@@ -11,7 +11,7 @@
 namespace engine::component {
 
 SpriteComponent::SpriteComponent(
-    const std::string& texture_id,
+    std::string_view texture_id,
     engine::resource::ResourceManager& resource_manager,
     engine::utils::Alignment alignment,
     std::optional<SDL_FRect> source_rect_opt,
@@ -100,7 +100,7 @@ void SpriteComponent::render(engine::core::Context& context) {
     context.getRenderer().drawSprite(context.getCamera(), sprite_, pos, scale, rotation_degrees);
 }
 
-void SpriteComponent::setSpriteById(const std::string& texture_id, std::optional<SDL_FRect> source_rect_opt) {
+void SpriteComponent::setSpriteById(std::string_view texture_id, std::optional<SDL_FRect> source_rect_opt) {
     sprite_.setTextureId(texture_id);
     sprite_.setSourceRect(std::move(source_rect_opt));
 

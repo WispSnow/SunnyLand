@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <string_view>
 #include <glm/vec2.hpp>
 #include <nlohmann/json.hpp>
 #include <map>
@@ -34,7 +35,7 @@ public:
      * @param scene 要加载数据的目标 Scene 对象。
      * @return bool 是否加载成功。
      */
-    [[nodiscard]] bool loadLevel(const std::string& map_path, Scene& scene);
+    [[nodiscard]] bool loadLevel(std::string_view map_path, Scene& scene);
 
 private:
     void loadImageLayer(const nlohmann::json& layer_json, Scene& scene);    ///< @brief 加载图片图层
@@ -64,11 +65,11 @@ private:
      * @return 属性值，如果属性不存在则返回 std::nullopt
      */
     template<typename T>
-    std::optional<T> getTileProperty(const nlohmann::json& tile_json, const std::string& property_name) {
+    std::optional<T> getTileProperty(const nlohmann::json& tile_json, std::string_view property_name) {
         if (!tile_json.contains("properties")) return std::nullopt;
         const auto& properties = tile_json["properties"];
         for (const auto& property : properties) {
-            if (property.contains("name") && property["name"] == property_name) {
+            if (property.contains("name") && property["name"] == std::string(property_name)) {
                 if (property.contains("value")) {
                     return property["value"].get<T>();
                 }
@@ -118,7 +119,7 @@ private:
      * @param tileset_path Tileset 文件路径。
      * @param first_gid 此 tileset 的第一个全局 ID。
      */
-    void loadTileset(const std::string& tileset_path, int first_gid);
+    void loadTileset(std::string_view tileset_path, int first_gid);
 
     /**
      * @brief 解析图片路径，合并地图路径和相对路径。例如：
@@ -129,7 +130,7 @@ private:
      * @param file_path 文件路径
      * @return std::string 解析后的完整路径。
      */
-    std::string resolvePath(const std::string& relative_path, const std::string& file_path);
+    std::string resolvePath(std::string_view relative_path, std::string_view file_path);
 };
 
 } // namespace engine::scene

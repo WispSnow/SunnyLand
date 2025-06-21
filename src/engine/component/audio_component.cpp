@@ -27,10 +27,10 @@ void AudioComponent::init()
     }
 }
 
-void AudioComponent::playSound(const std::string &sound_id, int channel, bool use_spatial)
+void AudioComponent::playSound(std::string_view sound_id, int channel, bool use_spatial)
 {
     // 如果 sound_id 是音效 ID，则在查找在map中查找对应的路径； 没找到的话则把 sound_id 当作路径直接使用
-    auto sound_path = sound_id_to_path_.find(sound_id) != sound_id_to_path_.end() ? sound_id_to_path_[sound_id] : sound_id;
+    auto sound_path = sound_id_to_path_.find(std::string(sound_id)) != sound_id_to_path_.end() ? sound_id_to_path_[std::string(sound_id)] : sound_id;
 
     if (use_spatial && transform_) {    // 使用空间定位
         // TODO: (SDL_Mixer 不支持空间定位，未来更换音频库时可以方便地实现)
@@ -48,12 +48,12 @@ void AudioComponent::playSound(const std::string &sound_id, int channel, bool us
     }
 }
 
-void AudioComponent::addSound(const std::string &sound_id, const std::string &sound_path)
+void AudioComponent::addSound(std::string_view sound_id, std::string_view sound_path)
 {
-    if (sound_id_to_path_.find(sound_id) != sound_id_to_path_.end()) {
+    if (sound_id_to_path_.find(std::string(sound_id)) != sound_id_to_path_.end()) {
         spdlog::warn("AudioComponent::addSound: 音效 ID '{}' 已存在，覆盖旧路径。", sound_id);
     }
-    sound_id_to_path_[sound_id] = sound_path;
+    sound_id_to_path_[std::string(sound_id)] = sound_path;
     spdlog::debug("AudioComponent::addSound: 添加音效 ID '{}' 路径 '{}'", sound_id, sound_path);
 }
 

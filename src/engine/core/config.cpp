@@ -1,17 +1,19 @@
 #include "config.h"
 #include <fstream>
+#include <filesystem>
 #include <nlohmann/json.hpp>
 #include "spdlog/spdlog.h"
 
 namespace engine::core {
 
-Config::Config(const std::string &filepath)
+Config::Config(std::string_view filepath)
 {
     loadFromFile(filepath);
 }
 
-bool Config::loadFromFile(const std::string& filepath) {
-    std::ifstream file(filepath);
+bool Config::loadFromFile(std::string_view filepath) {
+    auto path = std::filesystem::path(filepath);    // 将string_view转换为文件路径 (或std::sring)
+    std::ifstream file(path);                       // ifstream 不支持std::string_view 构造
     if (!file.is_open()) {
         spdlog::warn("配置文件 '{}' 未找到。使用默认设置并创建默认配置文件。", filepath);
         if (!saveToFile(filepath)) {
@@ -33,8 +35,9 @@ bool Config::loadFromFile(const std::string& filepath) {
     return false;
 }
 
-bool Config::saveToFile(const std::string& filepath) {
-    std::ofstream file(filepath);
+bool Config::saveToFile(std::string_view filepath) {
+    auto path = std::filesystem::path(filepath);    // 将string_view转换为文件路径
+    std::ofstream file(path);
     if (!file.is_open()) {
         spdlog::error("无法打开配置文件 '{}' 进行写入。", filepath);
         return false;

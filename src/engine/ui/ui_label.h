@@ -2,6 +2,8 @@
 #include "ui_element.h"
 #include "../utils/math.h"
 #include "../render/text_renderer.h"
+#include <string>
+#include <string_view>
 
 namespace engine::ui {
 
@@ -34,8 +36,8 @@ public:
      * @param text_color 文本颜色
      */
     UILabel(engine::render::TextRenderer& text_renderer,
-            const std::string& text,
-            const std::string& font_id,
+            std::string_view text,
+            std::string_view font_id,
             int font_size = 16,
             engine::utils::FColor text_color = {1.0f, 1.0f, 1.0f, 1.0f},
             glm::vec2 position = {0.0f, 0.0f});
@@ -44,13 +46,13 @@ public:
     void render(engine::core::Context& context) override;
 
     // --- Setters & Getters ---
-    const std::string& getText() const { return text_; }
-    const std::string& getFontId() const { return font_id_; }
+    std::string_view getText() const { return text_; }
+    std::string_view getFontId() const { return font_id_; }
     int getFontSize() const { return font_size_; }
     const engine::utils::FColor& getTextFColor() const { return text_fcolor_; }
 
-    void setText(const std::string& text);                      ///< @brief 设置文本内容, 同时更新尺寸
-    void setFontId(const std::string& font_id);                 ///< @brief 设置字体ID, 同时更新尺寸
+    void setText(std::string_view text);                      ///< @brief 设置文本内容, 同时更新尺寸
+    void setFontId(std::string_view font_id);                 ///< @brief 设置字体ID, 同时更新尺寸
     void setFontSize(int font_size);                            ///< @brief 设置字体大小, 同时更新尺寸
     void setTextFColor(engine::utils::FColor text_fcolor);
 

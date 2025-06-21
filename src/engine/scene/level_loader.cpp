@@ -23,9 +23,10 @@
 
 namespace engine::scene {
 
-bool LevelLoader::loadLevel(const std::string& level_path, Scene& scene) {
+bool LevelLoader::loadLevel(std::string_view level_path, Scene& scene) {
     // 1. 加载 JSON 文件
-    std::ifstream file(level_path);
+    auto path = std::filesystem::path(level_path);
+    std::ifstream file(path);
     if (!file.is_open()) {
         spdlog::error("无法打开关卡文件: {}", level_path);
         return false;
@@ -53,7 +54,7 @@ bool LevelLoader::loadLevel(const std::string& level_path, Scene& scene) {
                 spdlog::error("tilesets 对象中缺少有效 'source' 或 'firstgid' 字段。");
                 continue;
             }
-            auto tileset_path = resolvePath(tileset_json["source"], map_path_);  // 支持隐式转换，可以省略.get<T>()方法，
+            auto tileset_path = resolvePath(tileset_json["source"].get<std::string>(), map_path_);  // 支持隐式转换，可以省略.get<T>()方法，
             auto first_gid = tileset_json["firstgid"];
             loadTileset(tileset_path, first_gid);
         }
@@ -90,7 +91,8 @@ bool LevelLoader::loadLevel(const std::string& level_path, Scene& scene) {
 
 void LevelLoader::loadImageLayer(const nlohmann::json& layer_json, Scene& scene) {
     // 获取纹理相对路径 （会自动处理'\/'符号）
-    const std::string& image_path = layer_json.value("image", "");
+    std::string image_path = layer_json.value("image", "");     // json.value()返回的是一个临时对象，需要赋值才能保存，
+                                                                // 不能用std::string_view
     if (image_path.empty()) {
         spdlog::error("图层 '{}' 缺少 'image' 属性。", layer_json.value("name", "Unnamed"));
         return;
@@ -105,7 +107,7 @@ void LevelLoader::loadImageLayer(const nlohmann::json& layer_json, Scene& scene)
     const glm::bvec2 repeat = glm::bvec2(layer_json.value("repeatx", false), layer_json.value("repeaty", false));
     
     // 获取图层名称
-    const std::string& layer_name = layer_json.value("name", "Unnamed");
+    std::string layer_name = layer_json.value("name", "Unnamed");
     
     /*  可用类似方法获取其它各种属性，这里我们暂时用不上 */
     
@@ -138,7 +140,7 @@ void LevelLoader::loadTileLayer(const nlohmann::json& layer_json, Scene& scene)
     }
 
     // 获取图层名称
-    const std::string& layer_name = layer_json.value("name", "Unnamed");
+    std::string layer_name = layer_json.value("name", "Unnamed");
     // 创建游戏对象
     auto game_object = std::make_unique<engine::object::GameObject>(layer_name);
     // 添加Tilelayer组件
@@ -172,7 +174,7 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
             // 没有这些标识则默认是矩形对象
             else {  
                 // --- 创建游戏对象并添加TransfromComponent ---
-                const std::string& object_name = object.value("name", "Unnamed");
+                std::string object_name = object.value("name", "Unnamed");
                 auto game_object = std::make_unique<engine::object::GameObject>(object_name);
                     // 获取Transform相关信息 （自定义形状的坐标针对左上角）
                 auto position = glm::vec2(object.value("x", 0.0f), object.value("y", 0.0f));
@@ -220,7 +222,7 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
             auto scale = dst_size / src_size;
 
             // 获取对象名称
-            const std::string& object_name = object.value("name", "Unnamed");
+            std::string object_name = object.value("name", "Unnamed");
 
             // 创建游戏对象并添加组件
             auto game_object = std::make_unique<engine::object::GameObject>(object_name);
@@ -330,7 +332,7 @@ void LevelLoader::addAnimation(const nlohmann::json& anim_json, engine::componen
     }
     // 遍历动画 JSON 对象中的每个键值对（动画名称 : 动画信息）
     for (const auto& anim : anim_json.items()) {
-        const std::string& anim_name = anim.key();
+        std::string_view anim_name = anim.key();
         const auto& anim_info = anim.value();
         if (!anim_info.is_object()) {
             spdlog::warn("动画 '{}' 的信息无效或为空。", anim_name);
@@ -480,7 +482,7 @@ engine::component::TileInfo LevelLoader::getTileInfoByGid(int gid)
 
     const auto& tileset = tileset_it->second;
     auto local_id = gid - tileset_it->first;        // 计算瓦片在图块集中的局部ID
-    const std::string file_path = tileset.value("file_path", "");       // 获取图块集文件路径
+    std::string file_path = tileset.value("file_path", "");       // 获取图块集文件路径
     if (file_path.empty()) {
         spdlog::error("Tileset 文件 '{}' 缺少 'file_path' 属性。", tileset_it->first);
         return engine::component::TileInfo();
@@ -567,9 +569,10 @@ std::optional<nlohmann::json> LevelLoader::getTileJsonByGid(int gid) const
     return std::nullopt;
 }
 
-void LevelLoader::loadTileset(const std::string& tileset_path, int first_gid)
+void LevelLoader::loadTileset(std::string_view tileset_path, int first_gid)
 {
-    std::ifstream tileset_file(tileset_path);
+    auto path = std::filesystem::path(tileset_path);
+    std::ifstream tileset_file(path);
     if (!tileset_file.is_open()) {
         spdlog::error("无法打开 Tileset 文件: {}", tileset_path);
         return;
@@ -587,7 +590,7 @@ void LevelLoader::loadTileset(const std::string& tileset_path, int first_gid)
     spdlog::info("Tileset 文件 '{}' 加载完成，firstgid: {}", tileset_path, first_gid);
 }
 
-std::string LevelLoader::resolvePath(const std::string& relative_path, const std::string& file_path)
+std::string LevelLoader::resolvePath(std::string_view relative_path, std::string_view file_path)
 {
     try {   
     // 获取地图文件的父目录（相对于可执行文件） "assets/maps/level1.tmj" -> "assets/maps"
@@ -598,7 +601,7 @@ std::string LevelLoader::resolvePath(const std::string& relative_path, const std
     return final_path.string();
     } catch (const std::exception& e) {
         spdlog::error("解析路径失败: {}", e.what());
-        return relative_path;
+        return std::string(relative_path);
     }
 }
 

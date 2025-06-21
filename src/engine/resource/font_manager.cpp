@@ -20,7 +20,7 @@ FontManager::~FontManager() {
     spdlog::trace("FontManager 析构成功。");
 }
 
-TTF_Font* FontManager::loadFont(const std::string& file_path, int point_size) {
+TTF_Font* FontManager::loadFont(std::string_view file_path, int point_size) {
     // 检查点大小是否有效
     if (point_size <= 0) {
         spdlog::error("无法加载字体 '{}'：无效的点大小 {}。", file_path, point_size);
@@ -28,7 +28,7 @@ TTF_Font* FontManager::loadFont(const std::string& file_path, int point_size) {
     }
 
     // 创建映射表的键
-    FontKey key = {file_path, point_size};
+    FontKey key = {std::string(file_path), point_size};
 
     // 首先检查缓存
     auto it = fonts_.find(key);
@@ -38,7 +38,7 @@ TTF_Font* FontManager::loadFont(const std::string& file_path, int point_size) {
 
     // 缓存中不存在，则加载字体
     spdlog::debug("正在加载字体：{} ({}pt)", file_path, point_size);
-    TTF_Font* raw_font = TTF_OpenFont(file_path.c_str(), point_size);
+    TTF_Font* raw_font = TTF_OpenFont(file_path.data(), point_size);
     if (!raw_font) {
         spdlog::error("加载字体 '{}' ({}pt) 失败：{}", file_path, point_size, SDL_GetError());
         return nullptr;
@@ -50,8 +50,8 @@ TTF_Font* FontManager::loadFont(const std::string& file_path, int point_size) {
     return raw_font;
 }
 
-TTF_Font* FontManager::getFont(const std::string& file_path, int point_size) {
-    FontKey key = {file_path, point_size};
+TTF_Font* FontManager::getFont(std::string_view file_path, int point_size) {
+    FontKey key = {std::string(file_path), point_size};
     auto it = fonts_.find(key);
     if (it != fonts_.end()) {
         return it->second.get();
@@ -61,8 +61,8 @@ TTF_Font* FontManager::getFont(const std::string& file_path, int point_size) {
     return loadFont(file_path, point_size);
 }
 
-void FontManager::unloadFont(const std::string& file_path, int point_size) {
-    FontKey key = {file_path, point_size};
+void FontManager::unloadFont(std::string_view file_path, int point_size) {
+    FontKey key = {std::string(file_path), point_size};
     auto it = fonts_.find(key);
     if (it != fonts_.end()) {
         spdlog::debug("卸载字体：{} ({}pt)", file_path, point_size);

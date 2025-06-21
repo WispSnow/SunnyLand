@@ -1,6 +1,7 @@
 #pragma once
 #include "../../engine/scene/scene.h"
 #include <memory>
+#include <string_view>
 #include <glm/vec2.hpp>
 
 // 前置声明
@@ -57,14 +58,14 @@ private:
     void showEndScene(bool is_win);                                 ///< @brief 显示结束场景
 
     /// @brief 根据关卡名称获取对应的地图文件路径
-    std::string levelNameToPath(const std::string& level_name) const { return "assets/maps/" + level_name + ".tmj"; }
+    std::string levelNameToPath(std::string_view level_name) const { return "assets/maps/" + std::string(level_name) + ".tmj"; }
 
     /**
      * @brief 创建一个特效对象（一次性）。
      * @param center_pos 特效中心位置
      * @param tag 特效标签（决定特效类型,例如"enemy","item"）
      */
-    void createEffect(glm::vec2 center_pos, std::string tag);
+    void createEffect(glm::vec2 center_pos, std::string_view tag);
 
     // --- UI 相关函数 ---
     void createScoreUI();                           ///< @brief 创建得分UI

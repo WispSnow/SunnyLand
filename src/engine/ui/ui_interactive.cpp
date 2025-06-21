@@ -10,8 +10,8 @@ namespace engine::ui {
 
 UIInteractive::~UIInteractive() = default;
 
-UIInteractive::UIInteractive(engine::core::Context &context, const glm::vec2 &position, const glm::vec2 &size)
-    : UIElement(position, size), context_(context)
+UIInteractive::UIInteractive(engine::core::Context &context, glm::vec2 position, glm::vec2 size)
+    : UIElement(std::move(position), std::move(size)), context_(context)
 {
     spdlog::trace("UIInteractive 构造完成");
 }
@@ -27,34 +27,34 @@ void UIInteractive::setState(std::unique_ptr<engine::ui::state::UIState> state)
     state_->enter();
 }
 
-void UIInteractive::addSprite(const std::string &name, std::unique_ptr<engine::render::Sprite> sprite)
+void UIInteractive::addSprite(std::string_view name, std::unique_ptr<engine::render::Sprite> sprite)
 {
     // 可交互UI元素必须有一个size用于交互检测，因此如果参数列表中没有指定，则用图片大小作为size
     if (size_.x == 0.0f && size_.y == 0.0f) {
         size_ = context_.getResourceManager().getTextureSize(sprite->getTextureId());
     }
     // 添加精灵
-    sprites_[name] = std::move(sprite);
+    sprites_[std::string(name)] = std::move(sprite);
 }
 
-void UIInteractive::setSprite(const std::string &name)
+void UIInteractive::setSprite(std::string_view name)
 {
-    if (sprites_.find(name) != sprites_.end()) {
-        current_sprite_ = sprites_[name].get();
+    if (sprites_.find(std::string(name)) != sprites_.end()) {
+        current_sprite_ = sprites_[std::string(name)].get();
     } else {
         spdlog::warn("Sprite '{}' 未找到", name);
     }
 }
 
-void UIInteractive::addSound(const std::string &name, const std::string &path)
+void UIInteractive::addSound(std::string_view name, std::string_view path)
 {
-    sounds_[name] = path;
+    sounds_[std::string(name)] = path;
 }
 
-void UIInteractive::playSound(const std::string &name)
+void UIInteractive::playSound(std::string_view name)
 {
-    if (sounds_.find(name) != sounds_.end()) {
-        context_.getAudioPlayer().playSound(sounds_[name]);
+    if (sounds_.find(std::string(name)) != sounds_.end()) {
+        context_.getAudioPlayer().playSound(sounds_[std::string(name)]);
     } else {
         spdlog::error("Sound '{}' 未找到", name);
     }

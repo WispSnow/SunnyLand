@@ -13,15 +13,15 @@ TextureManager::TextureManager(SDL_Renderer* renderer) : renderer_(renderer) {
     spdlog::trace("TextureManager 构造成功。");
 }
 
-SDL_Texture* TextureManager::loadTexture(const std::string& file_path) {
+SDL_Texture* TextureManager::loadTexture(std::string_view file_path) {
     // 检查是否已加载
-    auto it = textures_.find(file_path);
+    auto it = textures_.find(std::string(file_path));   // 键为std::string, 因此需要转换
     if (it != textures_.end()) {
         return it->second.get();
     }
 
     // 如果没加载则尝试加载纹理
-    SDL_Texture* raw_texture = IMG_LoadTexture(renderer_, file_path.c_str());
+    SDL_Texture* raw_texture = IMG_LoadTexture(renderer_, file_path.data());    // 通过.data()获取const char*的指针
 
     // 载入纹理时，设置纹理缩放模式为最邻近插值(必不可少，否则TileLayer渲染中会出现边缘空隙/模糊)
     if (!SDL_SetTextureScaleMode(raw_texture, SDL_SCALEMODE_NEAREST)) {
@@ -40,9 +40,9 @@ SDL_Texture* TextureManager::loadTexture(const std::string& file_path) {
     return raw_texture;
 }
 
-SDL_Texture* TextureManager::getTexture(const std::string& file_path) {
+SDL_Texture* TextureManager::getTexture(std::string_view file_path) {
     // 查找现有纹理
-    auto it = textures_.find(file_path);
+    auto it = textures_.find(std::string(file_path));
     if (it != textures_.end()) {
         return it->second.get();
     }
@@ -52,7 +52,7 @@ SDL_Texture* TextureManager::getTexture(const std::string& file_path) {
     return loadTexture(file_path);
 }
 
-glm::vec2 TextureManager::getTextureSize(const std::string& file_path) {
+glm::vec2 TextureManager::getTextureSize(std::string_view file_path) {
     // 获取纹理
     SDL_Texture* texture = getTexture(file_path);
     if (!texture) {
@@ -69,8 +69,8 @@ glm::vec2 TextureManager::getTextureSize(const std::string& file_path) {
     return size;
 }
 
-void TextureManager::unloadTexture(const std::string& file_path) {
-    auto it = textures_.find(file_path);
+void TextureManager::unloadTexture(std::string_view file_path) {
+    auto it = textures_.find(std::string(file_path));
     if (it != textures_.end()) {
         spdlog::debug("卸载纹理: {}", file_path);
         textures_.erase(it); // unique_ptr 通过自定义删除器处理删除
