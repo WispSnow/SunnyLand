@@ -48,13 +48,13 @@ void AnimationComponent::update(float delta_time, engine::core::Context&) {
 
 void AnimationComponent::addAnimation(std::unique_ptr<engine::render::Animation> animation) {
     if (!animation) return;
-    std::string name = animation->getName();    // 获取名称
-    animations_[name] = std::move(animation);
+    std::string_view name = animation->getName();    // 获取名称
+    animations_[std::string(name)] = std::move(animation);
     spdlog::debug("已将动画 '{}' 添加到 GameObject '{}'", name, owner_ ? owner_->getName() : "未知");
 }
 
-void AnimationComponent::playAnimation(const std::string& name) {
-    auto it = animations_.find(name);
+void AnimationComponent::playAnimation(std::string_view name) {
+    auto it = animations_.find(std::string(name));
     if (it == animations_.end() || !it->second) {
         spdlog::warn("未找到 GameObject '{}' 的动画 '{}'", name, owner_ ? owner_->getName() : "未知");
         return;
@@ -77,11 +77,11 @@ void AnimationComponent::playAnimation(const std::string& name) {
     }
 }
 
-std::string AnimationComponent::getCurrentAnimationName() const {
+std::string_view AnimationComponent::getCurrentAnimationName() const {
     if (current_animation_) {
         return current_animation_->getName();
     }
-    return "";
+    return std::string_view();      // 返回一个空的string_view
 }
 
  bool AnimationComponent::isAnimationFinished() const {

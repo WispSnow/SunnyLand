@@ -1,6 +1,7 @@
 #pragma once
 #include "component.h"
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace engine::audio {
@@ -42,14 +43,14 @@ public:
      * @param channel 要播放的特定通道，或 -1 表示第一个可用通道。
      * @param use_spatial 是否使用空间定位。
      */
-    void playSound(const std::string& sound_id, int channel = -1, bool use_spatial = false);
+    void playSound(std::string_view sound_id, int channel = -1, bool use_spatial = false);
 
     /**
      * @brief 添加音效到映射表。
      * @param sound_id 音效的标识符（针对本组件唯一即可）。
      * @param sound_path 音效文件的路径。
      */
-    void addSound(const std::string& sound_id, const std::string& sound_path);
+    void addSound(std::string_view sound_id, std::string_view sound_path);
 
 private:
     // 核心循环方法

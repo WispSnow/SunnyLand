@@ -2,6 +2,7 @@
 #include <SDL3/SDL_rect.h>
 #include <vector>
 #include <string>
+#include <string_view>
 
 namespace engine::render {
 
@@ -33,7 +34,7 @@ public:
      * @param name 动画的名称。
      * @param loop 动画是否应该循环播放。
      */
-    Animation(const std::string& name = "default", bool loop = true);
+    Animation(std::string_view name = "default", bool loop = true);
     ~Animation() = default;
 
     // 禁止拷贝和移动，因为 Animation 通常由管理器持有，不应随意拷贝
@@ -58,14 +59,14 @@ public:
     const AnimationFrame& getFrame(float time) const;
 
     // --- Setters and Getters ---
-    const std::string& getName() const { return name_; }                        ///< @brief 获取动画名称。
+    std::string_view getName() const { return name_; }                        ///< @brief 获取动画名称。
     const std::vector<AnimationFrame>& getFrames() const { return frames_; }    ///< @brief 获取动画帧列表。
     size_t getFrameCount() const { return frames_.size(); }                     ///< @brief 获取帧数量。
     float getTotalDuration() const { return total_duration_; }                  ///< @brief 获取动画的总持续时间（秒）。
     bool isLooping() const { return loop_; }                                    ///< @brief 检查动画是否循环播放。
     bool isEmpty() const { return frames_.empty(); }                            ///< @brief 检查动画是否没有帧。
 
-    void setName(const std::string& name) { name_ = name; }                     ///< @brief 设置动画名称。
+    void setName(std::string_view name) { name_ = name; }                       ///< @brief 设置动画名称。
     void setLooping(bool loop) { loop_ = loop; }                                ///< @brief 设置动画是否循环播放。  
 
 };

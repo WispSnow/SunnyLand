@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <string_view>
 #include <vector>
 #include <unordered_map>
 #include <nlohmann/json_fwd.hpp>    // nlohmann_json 提供的前向声明
@@ -44,7 +45,7 @@ public:
         // 可以继续添加更多默认动作
     };
 
-    explicit Config(const std::string& filepath);                     ///< @brief 构造函数，指定配置文件路径。
+    explicit Config(std::string_view filepath);                     ///< @brief 构造函数，指定配置文件路径。
 
     // 删除拷贝和移动语义
     Config(const Config&) = delete;
@@ -52,8 +53,8 @@ public:
     Config(Config&&) = delete;
     Config& operator=(Config&&) = delete;
 
-    bool loadFromFile(const std::string& filepath);                   ///< @brief 从指定的 JSON 文件加载配置。成功返回 true，否则返回 false。
-    [[nodiscard]] bool saveToFile(const std::string& filepath);       ///< @brief 将当前配置保存到指定的 JSON 文件。成功返回 true，否则返回 false。
+    bool loadFromFile(std::string_view filepath);                   ///< @brief 从指定的 JSON 文件加载配置。成功返回 true，否则返回 false。
+    [[nodiscard]] bool saveToFile(std::string_view filepath);       ///< @brief 将当前配置保存到指定的 JSON 文件。成功返回 true，否则返回 false。
 
 private:
     void fromJson(const nlohmann::json& j);                           ///< @brief 从 JSON 对象反序列化配置。

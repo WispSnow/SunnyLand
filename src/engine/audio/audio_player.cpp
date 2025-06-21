@@ -14,7 +14,7 @@ AudioPlayer::AudioPlayer(engine::resource::ResourceManager* resource_manager)
     }
 }
 
-int AudioPlayer::playSound(const std::string& sound_path, int channel) {
+int AudioPlayer::playSound(std::string_view sound_path, int channel) {
 
     Mix_Chunk* chunk = resource_manager_->getSound(sound_path); // 通过 ResourceManager 获取资源
     if (!chunk) {
@@ -31,7 +31,7 @@ int AudioPlayer::playSound(const std::string& sound_path, int channel) {
     return played_channel;
 }
 
-bool AudioPlayer::playMusic(const std::string& music_path, int loops, int fade_in_ms) {
+bool AudioPlayer::playMusic(std::string_view music_path, int loops, int fade_in_ms) {
     if (music_path == current_music_) return true;      // 如果当前音乐已经在播放，则不重复播放
     current_music_ = music_path;
     Mix_Music* music = resource_manager_->getMusic(music_path); // 通过 ResourceManager 获取资源

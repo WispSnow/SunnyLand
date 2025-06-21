@@ -11,8 +11,8 @@
 
 namespace engine::scene {
 
-Scene::Scene(std::string name, engine::core::Context& context, engine::scene::SceneManager& scene_manager)
-    : scene_name_(std::move(name)), 
+Scene::Scene(std::string_view name, engine::core::Context& context, engine::scene::SceneManager& scene_manager)
+    : scene_name_(name),
       context_(context), 
       scene_manager_(scene_manager), 
       ui_manager_(std::make_unique<engine::ui::UIManager>()),
@@ -135,7 +135,7 @@ void Scene::safeRemoveGameObject(engine::object::GameObject* game_object_ptr)
     game_object_ptr->setNeedRemove(true);
 }
 
-engine::object::GameObject *Scene::findGameObjectByName(const std::string &name) const
+engine::object::GameObject *Scene::findGameObjectByName(std::string_view name) const
 {
     // 找到第一个符合条件的游戏对象就返回
     for (const auto& obj : game_objects_) {

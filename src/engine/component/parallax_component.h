@@ -2,6 +2,7 @@
 #include "component.h"
 #include "../render/sprite.h"
 #include <string>
+#include <string_view>
 #include <glm/vec2.hpp>
 
 namespace engine::component {
@@ -31,7 +32,7 @@ public:
      *                      (1, 1) 表示与相机完全同步移动。
      *                      (0.5, 0.5) 表示以相机一半的速度移动。
      */
-    ParallaxComponent(const std::string& texture_id, glm::vec2 scroll_factor, glm::bvec2 repeat);
+    ParallaxComponent(std::string_view texture_id, glm::vec2 scroll_factor, glm::bvec2 repeat);
 
     // --- 设置器 ---
     void setSprite(const engine::render::Sprite& sprite) { sprite_ = sprite; }  ///< @brief 设置精灵对象

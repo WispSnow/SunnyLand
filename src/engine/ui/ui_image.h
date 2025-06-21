@@ -2,6 +2,7 @@
 #include "ui_element.h"
 #include "../render/sprite.h"
 #include <string>
+#include <string_view>
 #include <optional>
 #include <SDL3/SDL_rect.h>
 
@@ -26,7 +27,7 @@ public:
      * @param source_rect 可选：要绘制的纹理部分。（如果为空，则使用纹理的整个区域）
      * @param is_flipped 可选：精灵是否应该水平翻转。
      */
-    UIImage(const std::string& texture_id,
+    UIImage(std::string_view texture_id,
             glm::vec2 position = {0.0f, 0.0f},
             glm::vec2 size = {0.0f, 0.0f},
             std::optional<SDL_FRect> source_rect = std::nullopt,
@@ -39,8 +40,8 @@ public:
     const engine::render::Sprite& getSprite() const { return sprite_; }
     void setSprite(engine::render::Sprite sprite) { sprite_ = std::move(sprite); }
 
-    const std::string& getTextureId() const { return sprite_.getTextureId(); }
-    void setTextureId(const std::string& texture_id) { sprite_.setTextureId(texture_id); }
+    std::string_view getTextureId() const { return sprite_.getTextureId(); }
+    void setTextureId(std::string_view texture_id) { sprite_.setTextureId(texture_id); }
 
     const std::optional<SDL_FRect>& getSourceRect() const { return sprite_.getSourceRect(); }
     void setSourceRect(std::optional<SDL_FRect> source_rect) { sprite_.setSourceRect(std::move(source_rect)); }
