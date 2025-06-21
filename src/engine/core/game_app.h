@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <functional>
 
 // 前向声明, 减少头文件的依赖，增加编译速度
 struct SDL_Window;
@@ -46,6 +47,9 @@ private:
     SDL_Renderer* sdl_renderer_ = nullptr;
     bool is_running_ = false;
 
+    /// @brief 游戏场景设置函数，用于在运行游戏前设置初始场景 (GameApp不再决定初始场景是什么)
+    std::function<void(engine::scene::SceneManager&)> scene_setup_func_;
+
     // 引擎组件
     std::unique_ptr<engine::core::Time> time_;
     std::unique_ptr<engine::resource::ResourceManager> resource_manager_;
@@ -68,6 +72,13 @@ public:
      * @brief 运行游戏应用程序，其中会调用init()，然后进入主循环，离开循环后自动调用close()。
      */
     void run();
+
+    /**
+     * @brief 注册用于设置初始游戏场景的函数。
+     *        这个函数将在 SceneManager 初始化后被调用。
+     * @param func 一个接收 SceneManager 引用的函数对象。
+     */
+    void registerSceneSetup(std::function<void(engine::scene::SceneManager&)> func);
 
     // 禁止拷贝和移动
     GameApp(const GameApp&) = delete;
