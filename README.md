@@ -50,6 +50,8 @@ sudo apt install nlomann-json3-dev libspdlog-dev
 5. 成功后即可在目标地址看到对应库文件夹
 > 如果下载或安装困难，也可以尝试我自己编译好的库文件：[百度网盘](https://pan.baidu.com/s/1pmz0GCXpDr2d79ieTXkt5g?pwd=23n8)，版本与教程相同
 6. 设置环境变量，将上一步得到的`文件夹路径` 添加到Path变量中。
+7. (可选): `spdlog` 的debug和release模式需要分别编译安装，默认是debug模式，如果要支持release，在debug安装完成之后，改成release重新安装一次即可（即一共安装两次）
+<img src="https://theorhythm.top/gamedev/SL/spdlog-release.png" style='width: 600px;'/>
 至此完成配置。
 
 ## CMakeLists.txt 补充
