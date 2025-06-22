@@ -2,6 +2,7 @@
 #include "engine/scene/scene_manager.h"
 #include "game/scene/title_scene.h"
 #include <spdlog/spdlog.h>
+#include <SDL3/SDL_main.h>
 
 void setupInitialScene(engine::scene::SceneManager& scene_manager) {
     // GameApp在调用run方法之前，先创建并设置初始场景
