@@ -7,6 +7,10 @@
 #include <optional>
 #include "../utils/math.h"
 
+namespace engine::core {
+class Context;
+}
+
 namespace engine::component {
 class AnimationComponent;
 class AudioComponent;
@@ -32,8 +36,20 @@ class LevelLoader final {
     glm::ivec2 tile_size_;      ///< @brief 瓦片尺寸(像素)
     std::map<int, nlohmann::json> tileset_data_;    ///< @brief firstgid -> 瓦片集数据
 
+    std::unique_ptr<engine::object::ObjectBuilder> object_builder_;    ///< @brief 对象生成器
+
 public:
-    LevelLoader() = default;
+    /**
+     * @brief 构造函数，传入Context对象，用于创建默认的对象生成器
+     * @param context 上下文对象
+     */
+    LevelLoader(engine::core::Context& context);
+    ~LevelLoader();
+
+    /**
+     * @brief 设置新的对象生成器, 用于自定义生成器
+     */
+    void setObjectBuilder(std::unique_ptr<engine::object::ObjectBuilder> object_builder);
 
     /**
      * @brief 加载关卡数据到指定的 Scene 对象中。

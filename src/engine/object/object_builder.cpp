@@ -20,6 +20,8 @@
 
 namespace engine::object {
 
+ObjectBuilder::~ObjectBuilder() = default;
+
 ObjectBuilder::ObjectBuilder(engine::scene::LevelLoader& level_loader, engine::core::Context& context)
     : level_loader_(level_loader), context_(context) {
     spdlog::trace("ObjectBuilder 已创建.");
@@ -102,10 +104,10 @@ void ObjectBuilder::buildBase()
     name_ = object_json_->value("name", "");
     
     // 先查找地图中的标签，没有再查找图块集中的标签（前者覆盖后者）
-    auto tag = level_loader_.getTileProperty<std::string>(*object_json_, "tag");
+    auto tag = getTileProperty<std::string>(*object_json_, "tag");
 
     if (!tag && tile_json_) {   // 如果没找到标签且 tile_json_ 存在，则尝试从中获取标签
-        tag = level_loader_.getTileProperty<std::string>(*tile_json_, "tag");
+        tag = getTileProperty<std::string>(*tile_json_, "tag");
         // 如果也没找到标签，但它是危险图块，则自动设置标签为 "hazard"
         if (!tag && tile_info_.type == engine::component::TileType::HAZARD) {
             tag = "hazard";  // 危险图块默认标签
@@ -179,7 +181,7 @@ void ObjectBuilder::buildPhysics()
             game_object_->setTag("solid");
         }
         // 如果非SOLID类型，检查自定义碰撞盒是否存在
-        else if (auto rect = level_loader_.getColliderRect(*tile_json_); rect) {  
+        else if (auto rect = getColliderRect(*tile_json_); rect) {  
             // 如果有，添加碰撞组件
             auto collider = std::make_unique<engine::physics::AABBCollider>(rect->size);
             auto* cc = game_object_->addComponent<engine::component::ColliderComponent>(std::move(collider));
@@ -188,7 +190,7 @@ void ObjectBuilder::buildPhysics()
             game_object_->addComponent<engine::component::PhysicsComponent>(&context_.getPhysicsEngine(), false);
         }
         // 尝试获取显式标注的重力信息并设置
-        auto gravity = level_loader_.getTileProperty<bool>(*tile_json_, "gravity");
+        auto gravity = getTileProperty<bool>(*tile_json_, "gravity");
         if (gravity) {
             auto pc = game_object_->getComponent<engine::component::PhysicsComponent>();
             if (pc) {
@@ -205,7 +207,7 @@ void ObjectBuilder::buildAnimation()
 {
     if (!tile_json_) return;  // 如果是自定义形状对象，则不需要 AnimationComponent
 
-    auto anim_string = level_loader_.getTileProperty<std::string>(*tile_json_, "animation");
+    auto anim_string = getTileProperty<std::string>(*tile_json_, "animation");
     if (anim_string) {
         // 解析string为JSON对象
         nlohmann::json anim_json;
@@ -218,7 +220,7 @@ void ObjectBuilder::buildAnimation()
         // 添加AnimationComponent
         auto* ac = game_object_->addComponent<engine::component::AnimationComponent>();
         // 添加动画到 AnimationComponent
-        level_loader_.addAnimation(anim_json, ac, src_size_);
+        addAnimation(anim_json, ac, src_size_);
     }
 }
 
@@ -227,7 +229,7 @@ void ObjectBuilder::buildHealth()
     if (!tile_json_) return;  // 如果是自定义形状对象，则不需要 HealthComponent
 
     // 获取生命值信息并设置
-    auto health = level_loader_.getTileProperty<int>(*tile_json_, "health");
+    auto health = getTileProperty<int>(*tile_json_, "health");
     if (health) {
         // 添加 HealthComponent
         game_object_->addComponent<engine::component::HealthComponent>(health.value());
@@ -239,7 +241,7 @@ void ObjectBuilder::buildAudio()
     if (!tile_json_) return;  // 如果是自定义形状对象，则不需要 AudioComponent
     
     // 获取音效信息并设置
-    auto sound_string = level_loader_.getTileProperty<std::string>(*tile_json_, "sound");
+    auto sound_string = getTileProperty<std::string>(*tile_json_, "sound");
     if (sound_string) {
         // 解析string为JSON对象
         nlohmann::json sound_json;
@@ -253,8 +255,30 @@ void ObjectBuilder::buildAudio()
         auto* audio_component = game_object_->addComponent<engine::component::AudioComponent>(&context_.getAudioPlayer(),
                                                                                               &context_.getCamera());
         // 添加音效到 AudioComponent
-        level_loader_.addSound(sound_json, audio_component);
+        addSound(sound_json, audio_component);
     }
+}
+
+// --- 代理函数，让子类能获取到LevelLoader的私有方法 ---
+template<typename T>
+std::optional<T> ObjectBuilder::getTileProperty(const nlohmann::json& tile_json, std::string_view property_name) {
+    return level_loader_.getTileProperty<T>(tile_json, property_name);
+}
+
+engine::component::TileType ObjectBuilder::getTileType(const nlohmann::json& tile_json) {
+    return level_loader_.getTileType(tile_json);
+}
+
+std::optional<engine::utils::Rect> ObjectBuilder::getColliderRect(const nlohmann::json& tile_json) {
+    return level_loader_.getColliderRect(tile_json);
+}
+
+void ObjectBuilder::addAnimation(const nlohmann::json& anim_json, engine::component::AnimationComponent* ac, const glm::vec2& sprite_size) {
+    level_loader_.addAnimation(anim_json, ac, sprite_size);
+}
+
+void ObjectBuilder::addSound(const nlohmann::json& sound_json, engine::component::AudioComponent* audio_component) {
+    level_loader_.addSound(sound_json, audio_component);
 }
 
 } // namespace engine::object

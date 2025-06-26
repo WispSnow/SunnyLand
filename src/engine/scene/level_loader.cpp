@@ -24,6 +24,17 @@
 
 namespace engine::scene {
 
+LevelLoader::~LevelLoader() = default;
+
+LevelLoader::LevelLoader(engine::core::Context& context)
+ : object_builder_(std::make_unique<engine::object::ObjectBuilder>(*this, context)){
+    spdlog::trace("LevelLoader 构造完成。");
+}
+
+void LevelLoader::setObjectBuilder(std::unique_ptr<engine::object::ObjectBuilder> object_builder) {
+    object_builder_ = std::move(object_builder);
+}
+
 bool LevelLoader::loadLevel(std::string_view level_path, Scene& scene) {
     // 1. 加载 JSON 文件
     auto path = std::filesystem::path(level_path);
@@ -157,8 +168,6 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
         spdlog::error("对象图层 '{}' 缺少 'objects' 属性。", layer_json.value("name", "Unnamed"));
         return;
     }
-    // 创建对象生成器
-    engine::object::ObjectBuilder object_builder(*this, scene.getContext());
     // 获取对象数据
     const auto& objects = layer_json["objects"];
     // 遍历对象数据
@@ -167,7 +176,7 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
         auto gid = object.value("gid", 0);
         if (gid == 0) {     // 如果gid为0 (即不存在)，则代表自己绘制的形状
             // 配置生成器，并调用build，针对自定义形状
-            object_builder.configure(&object)->build();
+            object_builder_->configure(&object)->build();
 
         } else {        // 如果gid存在，则按照图片解析流程
             // 配置生成器，针对图片对象
@@ -178,10 +187,10 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
                 continue;
             }
             // 配置生成器，并调用build，针对图片对象
-            object_builder.configure(&object, &tile_json.value(), tile_info)->build();
+            object_builder_->configure(&object, &tile_json.value(), tile_info)->build();
         }
         // 获取 GameObject
-        auto game_object = object_builder.getGameObject();
+        auto game_object = object_builder_->getGameObject();
         // 添加到场景中
         if (game_object) {
             spdlog::info("加载对象: '{}' 完成", game_object->getName());

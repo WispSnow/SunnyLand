@@ -40,7 +40,7 @@ void TitleScene::init() {
         return;
     }
     // 加载背景地图
-    engine::scene::LevelLoader level_loader;
+    engine::scene::LevelLoader level_loader(context_);
     if (!level_loader.loadLevel("assets/maps/level0.tmj", *this)) {
          spdlog::error("加载背景失败");
          return;

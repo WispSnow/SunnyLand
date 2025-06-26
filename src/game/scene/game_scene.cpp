@@ -31,6 +31,7 @@
 #include "../component/ai/updown_behavior.h"
 #include "../component/ai/jump_behavior.h"
 #include "../data/session_data.h"
+#include "../object/object_builder_sl.h"
 #include <spdlog/spdlog.h>
 
 namespace game::scene {
@@ -62,11 +63,6 @@ void GameScene::init() {
     }
     if (!initPlayer()) {
         spdlog::error("玩家初始化失败，无法继续。");
-        context_.getInputManager().setShouldQuit(true);
-        return;
-    }
-    if (!initEnemyAndItem()) {
-        spdlog::error("敌人和道具初始化失败，无法继续。");
         context_.getInputManager().setShouldQuit(true);
         return;
     }
@@ -119,8 +115,14 @@ void GameScene::clean() {
 
 bool GameScene::initLevel()
 {
-    // 加载关卡（level_loader通常加载完成后即可销毁，因此不存为成员变量）
-    engine::scene::LevelLoader level_loader;
+    // 创建关卡加载器
+    engine::scene::LevelLoader level_loader(context_);
+
+    // 设置新的生成器（针对当前游戏），替代默认的生成器
+    auto builder = std::make_unique<game::object::ObjectBuilderSL>(level_loader, context_);
+    level_loader.setObjectBuilder(std::move(builder)); 
+
+    // 加载关卡
     auto level_path = game_session_data_->getMapPath();
     if (!level_loader.loadLevel(level_path, *this)){
         spdlog::error("关卡加载失败");
@@ -162,13 +164,6 @@ bool GameScene::initPlayer()
         return false;
     }
 
-    // 添加PlayerComponent到玩家对象
-    auto* player_component = player_->addComponent<game::component::PlayerComponent>();
-    if (!player_component) {
-        spdlog::error("无法添加 PlayerComponent 到玩家对象");
-        return false;
-    }
-
     // 从SessionData中更新玩家生命值
     if (auto health_component = player_->getComponent<engine::component::HealthComponent>(); health_component) {
         health_component->setMaxHealth(game_session_data_->getMaxHealth());
@@ -178,52 +173,7 @@ bool GameScene::initPlayer()
         return false;
     }
 
-    // 相机跟随玩家
-    auto* player_transform = player_->getComponent<engine::component::TransformComponent>();
-    if (!player_transform) {
-        spdlog::error("玩家对象没有 TransformComponent 组件, 无法设置相机目标");
-        return false;
-    }
-    context_.getCamera().setTarget(player_transform);
-    spdlog::trace("Player初始化完成。");
     return true;
-}
-
-bool GameScene::initEnemyAndItem()
-{
-    bool success = true;
-    for (auto& game_object : game_objects_){
-        if (game_object->getName() == "eagle"){
-            if (auto* ai_component = game_object->addComponent<game::component::AIComponent>(); ai_component){
-                auto y_max = game_object->getComponent<engine::component::TransformComponent>()->getPosition().y;
-                auto y_min = y_max - 80.0f;    // 让鹰的飞行范围 (当前位置与上方80像素 的区域)
-                ai_component->setBehavior(std::make_unique<game::component::ai::UpDownBehavior>(y_min, y_max));
-            }
-        }
-        if (game_object->getName() == "frog"){
-            if (auto* ai_component = game_object->addComponent<game::component::AIComponent>(); ai_component){
-                auto x_max = game_object->getComponent<engine::component::TransformComponent>()->getPosition().x - 10.0f;
-                auto x_min = x_max - 90.0f;    // 青蛙跳跃范围（右侧 - 10.0f 是为了增加稳定性）
-                ai_component->setBehavior(std::make_unique<game::component::ai::JumpBehavior>(x_min, x_max));
-            }
-        }
-        if (game_object->getName() == "opossum"){
-            if (auto* ai_component = game_object->addComponent<game::component::AIComponent>(); ai_component){
-                auto x_max = game_object->getComponent<engine::component::TransformComponent>()->getPosition().x;
-                auto x_min = x_max - 200.0f;    // 负鼠巡逻范围
-                ai_component->setBehavior(std::make_unique<game::component::ai::PatrolBehavior>(x_min, x_max));
-            }
-        }
-        if (game_object->getTag() == "item"){
-            if (auto* ac = game_object->getComponent<engine::component::AnimationComponent>(); ac){
-                ac->playAnimation("idle");
-            } else {
-                spdlog::error("Item对象缺少 AnimationComponent，无法播放动画。");
-                success = false;
-            }
-        }
-    }
-    return success;
 }
 
 bool GameScene::initUI()
