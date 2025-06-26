@@ -60,7 +60,7 @@ public:
      * @param alignment 初始对齐方式。
      */
     SpriteComponent(
-        engine::render::Sprite&& sprite,
+        engine::render::Sprite sprite,
         engine::resource::ResourceManager& resource_manager,
         engine::utils::Alignment alignment = engine::utils::Alignment::NONE
     );

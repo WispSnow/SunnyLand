@@ -14,6 +14,10 @@ struct TileInfo;
 enum class TileType;
 }
 
+namespace engine::object {
+class ObjectBuilder;
+}
+
 namespace engine::scene {
 class Scene;
 
@@ -21,6 +25,8 @@ class Scene;
  * @brief 负责从 Tiled JSON 文件 (.tmj) 加载关卡数据到 Scene 中。
  */
 class LevelLoader final {
+    friend class engine::object::ObjectBuilder;  ///< @brief ObjectBuilder 可以访问 LevelLoader 的私有方法
+
     std::string map_path_;      ///< @brief 地图路径（拼接路径时需要）
     glm::ivec2 map_size_;       ///< @brief 地图尺寸(瓦片数量)
     glm::ivec2 tile_size_;      ///< @brief 瓦片尺寸(像素)

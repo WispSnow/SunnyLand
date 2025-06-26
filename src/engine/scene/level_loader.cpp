@@ -9,6 +9,7 @@
 #include "../component/health_component.h"
 #include "../component/audio_component.h"
 #include "../object/game_object.h"
+#include "../object/object_builder.h"
 #include "../scene/scene.h"
 #include "../core/context.h"
 #include "../resource/resource_manager.h"
@@ -156,6 +157,8 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
         spdlog::error("对象图层 '{}' 缺少 'objects' 属性。", layer_json.value("name", "Unnamed"));
         return;
     }
+    // 创建对象生成器
+    engine::object::ObjectBuilder object_builder(*this, scene.getContext());
     // 获取对象数据
     const auto& objects = layer_json["objects"];
     // 遍历对象数据
@@ -163,162 +166,26 @@ void LevelLoader::loadObjectLayer(const nlohmann::json& layer_json, Scene& scene
         // 获取对象gid
         auto gid = object.value("gid", 0);
         if (gid == 0) {     // 如果gid为0 (即不存在)，则代表自己绘制的形状
-            // 非矩形对象会有额外标识（目前不考虑）
-            if (object.value("point", false)) {             // 如果是点对象
-                continue;       // TODO: 点对象的处理方式
-            } else if (object.value("ellipse", false)) {    // 如果是椭圆对象
-                continue;       // TODO: 椭圆对象的处理方式
-            } else if (object.value("polygon", false)) {    // 如果是多边形对象
-                continue;       // TODO: 多边形对象的处理方式
-            } 
-            // 没有这些标识则默认是矩形对象
-            else {  
-                // --- 创建游戏对象并添加TransfromComponent ---
-                std::string object_name = object.value("name", "Unnamed");
-                auto game_object = std::make_unique<engine::object::GameObject>(object_name);
-                    // 获取Transform相关信息 （自定义形状的坐标针对左上角）
-                auto position = glm::vec2(object.value("x", 0.0f), object.value("y", 0.0f));
-                auto dst_size = glm::vec2(object.value("width", 0.0f), object.value("height", 0.0f));
-                auto rotation = object.value("rotation", 0.0f);
-                    // 添加TransformComponent，缩放为设定为1.0f
-                game_object->addComponent<engine::component::TransformComponent>(position, glm::vec2(1.0f), rotation);
+            // 配置生成器，并调用build，针对自定义形状
+            object_builder.configure(&object)->build();
 
-                // --- 添加碰撞组件和物理组件 ---
-                    // 碰撞盒大小与dst_size相同 
-                auto collider = std::make_unique<engine::physics::AABBCollider>(dst_size);
-                auto* cc = game_object->addComponent<engine::component::ColliderComponent>(std::move(collider));
-                    // 自定义形状通常是trigger类型，除非显示指定 （因此默认为真）
-                cc->setTrigger(object.value("trigger", true));
-                    // 添加物理组件，不受重力影响
-                game_object->addComponent<engine::component::PhysicsComponent>(&scene.getContext().getPhysicsEngine(), false);
-                
-                // 获取标签信息并设置
-                if (auto tag = getTileProperty<std::string>(object, "tag"); tag) {  // 如果有标签
-                    game_object->setTag(tag.value());
-                }
-                // 添加到场景
-                scene.addGameObject(std::move(game_object));
-                spdlog::info("加载对象: '{}' 完成 (类型: 自定义形状)", object_name);
-            }
         } else {        // 如果gid存在，则按照图片解析流程
-            // --- 根据gid获取必要信息，每个gid对应一个游戏对象 ---
-            auto tile_info = getTileInfoByGid(gid);
-            if (tile_info.sprite.getTextureId().empty()) {
-                spdlog::error("gid为 {} 的瓦片没有图像纹理。", gid);
-                continue;
-            }
-            // 获取Transform相关信息
-            auto position = glm::vec2(object.value("x", 0.0f), object.value("y", 0.0f));
-            auto dst_size = glm::vec2(object.value("width", 0.0f), object.value("height", 0.0f));
-            position = glm::vec2(position.x, position.y - dst_size.y);  // 实际position需要进行调整(左下角到左上角)
-
-            auto rotation = object.value("rotation", 0.0f);
-            auto src_size_opt = tile_info.sprite.getSourceRect();
-            if (!src_size_opt) {        // 正常情况下，所有瓦片的Sprite都设置了源矩形，没有代表某处出错
-                spdlog::error("gid为 {} 的瓦片没有源矩形。", gid);
-                continue;
-            }
-            auto src_size = glm::vec2(src_size_opt->w, src_size_opt->h);    // 成员变量除了 value().w 外，也可以这样获取
-            auto scale = dst_size / src_size;
-
-            // 获取对象名称
-            std::string object_name = object.value("name", "Unnamed");
-
-            // 创建游戏对象并添加组件
-            auto game_object = std::make_unique<engine::object::GameObject>(object_name);
-            game_object->addComponent<engine::component::TransformComponent>(position, scale, rotation);
-            game_object->addComponent<engine::component::SpriteComponent>(std::move(tile_info.sprite), scene.getContext().getResourceManager());
-
-            // 获取瓦片json信息      1. 必然存在，因为getTileInfoByGid(gid)函数已经顺利执行
-                                // 2. 这里再获取json，实际上检索了两次，未来可以优化
+            // 配置生成器，针对图片对象
             auto tile_json = getTileJsonByGid(gid);
-
-            // 获取碰信息：如果是SOLID类型，则添加物理组件，且图片源矩形区域就是碰撞盒大小
-            if (tile_info.type == engine::component::TileType::SOLID) {
-                auto collider = std::make_unique<engine::physics::AABBCollider>(src_size);
-                game_object->addComponent<engine::component::ColliderComponent>(std::move(collider));
-                // 物理组件不受重力影响
-                game_object->addComponent<engine::component::PhysicsComponent>(&scene.getContext().getPhysicsEngine(), false);
-                // 设置标签方便物理引擎检索
-                game_object->setTag("solid");
+            auto tile_info = getTileInfoByGid(gid);
+            if (!tile_json || !tile_json->is_object()) {
+                spdlog::warn("对象图层 '{}' 中的对象缺少有效的 'gid' 或瓦片信息。", layer_json.value("name", "Unnamed"));
+                continue;
             }
-            // 如果非SOLID类型，检查自定义碰撞盒是否存在
-            else if (auto rect = getColliderRect(tile_json); rect) {  
-                // 如果有，添加碰撞组件
-                auto collider = std::make_unique<engine::physics::AABBCollider>(rect->size);
-                auto* cc = game_object->addComponent<engine::component::ColliderComponent>(std::move(collider));
-                cc->setOffset(rect->position);  // 自定义碰撞盒的坐标是相对于图片坐标，也就是针对Transform的偏移量
-                // 和物理组件（默认不受重力影响）
-                game_object->addComponent<engine::component::PhysicsComponent>(&scene.getContext().getPhysicsEngine(), false);
-            }
-
-            // 获取标签信息并设置
-            auto tag = getTileProperty<std::string>(tile_json, "tag");
-            if (tag) {
-                game_object->setTag(tag.value());
-            }
-            // 如果是危险瓦片，且没有手动设置标签，则自动设置标签为 "hazard"
-            else if (tile_info.type == engine::component::TileType::HAZARD) {
-                game_object->setTag("hazard");
-            }
-
-            // 获取重力信息并设置
-            auto gravity = getTileProperty<bool>(tile_json, "gravity");
-            if (gravity) {
-                auto pc = game_object->getComponent<engine::component::PhysicsComponent>();
-                if (pc) {
-                    pc->setUseGravity(gravity.value());
-                } else {
-                    spdlog::warn("对象 '{}' 在设置重力信息时没有物理组件，请检查地图设置。", object_name);
-                    game_object->addComponent<engine::component::PhysicsComponent>(&scene.getContext().getPhysicsEngine(), gravity.value());
-                }
-            }
-
-            // 获取动画信息并设置
-            auto anim_string = getTileProperty<std::string>(tile_json, "animation");
-            if (anim_string) {
-                // 解析string为JSON对象
-                nlohmann::json anim_json;
-                try {
-                    anim_json = nlohmann::json::parse(anim_string.value());
-                } catch (const nlohmann::json::parse_error& e) {
-                    spdlog::error("解析动画 JSON 字符串失败: {}", e.what());
-                    continue;  // 跳过此对象
-                }
-                // 添加AnimationComponent
-                auto* ac = game_object->addComponent<engine::component::AnimationComponent>();
-                // 添加动画到 AnimationComponent
-                addAnimation(anim_json, ac, src_size);
-            }
-
-            // 获取音效信息并设置
-            auto sound_string = getTileProperty<std::string>(tile_json, "sound");
-            if (sound_string) {
-                // 解析string为JSON对象
-                nlohmann::json sound_json;
-                try {
-                    sound_json = nlohmann::json::parse(sound_string.value());
-                } catch (const nlohmann::json::parse_error& e) {
-                    spdlog::error("解析音效 JSON 字符串失败: {}", e.what());
-                    continue;  // 跳过此对象
-                }
-                // 添加AudioComponent
-                auto* audio_component = game_object->addComponent<engine::component::AudioComponent>(&scene.getContext().getAudioPlayer(),
-                                                                                                     &scene.getContext().getCamera());
-                // 添加音效到 AudioComponent
-                addSound(sound_json, audio_component);
-            }
-
-            // 获取生命值信息并设置
-            auto health = getTileProperty<int>(tile_json, "health");
-            if (health) {
-                // 添加 HealthComponent
-                game_object->addComponent<engine::component::HealthComponent>(health.value());
-            }
-
-            // 添加到场景中
+            // 配置生成器，并调用build，针对图片对象
+            object_builder.configure(&object, &tile_json.value(), tile_info)->build();
+        }
+        // 获取 GameObject
+        auto game_object = object_builder.getGameObject();
+        // 添加到场景中
+        if (game_object) {
+            spdlog::info("加载对象: '{}' 完成", game_object->getName());
             scene.addGameObject(std::move(game_object));
-            spdlog::info("加载对象: '{}' 完成", object_name);
         }
     }
 }
