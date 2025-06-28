@@ -9,9 +9,9 @@
 #include "../../engine/component/health_component.h"
 #include "../../engine/component/audio_component.h"
 #include "../../engine/object/game_object.h"
+#include "../../engine/core/context.h"
 #include "../../engine/input/input_manager.h"
 #include <utility>
-#include <typeinfo>
 #include <spdlog/spdlog.h>
 #include <glm/common.hpp>
 
@@ -70,6 +70,31 @@ bool PlayerComponent::takeDamage(int damage) {
     return true;
 }
 
+void PlayerComponent::moveLeft() {
+    auto next_state = current_state_->moveLeft();
+    if (next_state) setState(std::move(next_state));
+}
+
+void PlayerComponent::moveRight() {
+    auto next_state = current_state_->moveRight();
+    if (next_state) setState(std::move(next_state));
+}
+
+void PlayerComponent::jump() {
+    auto next_state = current_state_->jump();
+    if (next_state) setState(std::move(next_state));
+}
+
+void PlayerComponent::climbUp() {
+    auto next_state = current_state_->climbUp();
+    if (next_state) setState(std::move(next_state));
+}
+
+void PlayerComponent::climbDown() {
+    auto next_state = current_state_->climbDown();
+    if (next_state) setState(std::move(next_state));
+}
+
 void PlayerComponent::setState(std::unique_ptr<state::PlayerState> new_state) {
     if (!new_state) {
         spdlog::warn("尝试设置空的玩家状态！");
@@ -93,10 +118,16 @@ bool PlayerComponent::is_on_ground() const
 void PlayerComponent::handleInput(engine::core::Context& context) {
     if (!current_state_) return;
 
-    auto next_state = current_state_->handleInput(context);
-    if (next_state) {
-        setState(std::move(next_state));
-    }
+    // --- 现在在这里负责判断输入并调用对应的方法，不再将handleInput委托给状态类处理 ---
+    auto& input_manager = context.getInputManager();
+    // 判断左右移动操作
+    if (input_manager.isActionDown("move_left")) moveLeft();
+    else if (input_manager.isActionDown("move_right")) moveRight();
+    // 判断跳跃或上下移动操作（可以和左右操作同时进行）
+    if (input_manager.isActionPressed("jump")) jump();
+    else if (input_manager.isActionDown("move_up")) climbUp();
+    else if (input_manager.isActionDown("move_down")) climbDown();
+
 }
 
 void PlayerComponent::update(float delta_time, engine::core::Context& context) {

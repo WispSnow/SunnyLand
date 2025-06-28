@@ -32,13 +32,19 @@ public:
 
     void playAnimation(const std::string& animation_name);      ///< @brief 播放指定名称的动画，使用 AnimationComponent 的方法
 
+    // --- 不同状态下的操作逻辑，子类需要什么就实现什么 ---
+    virtual std::unique_ptr<PlayerState> moveLeft() { return nullptr; }
+    virtual std::unique_ptr<PlayerState> moveRight() { return nullptr; }
+    virtual std::unique_ptr<PlayerState> jump() { return nullptr; }
+    virtual std::unique_ptr<PlayerState> climbUp() { return nullptr; }
+    virtual std::unique_ptr<PlayerState> climbDown() { return nullptr; }
+
 protected:
     // 核心状态方法
     virtual void enter() = 0;       ///< @brief 进入
     virtual void exit() = 0;        ///< @brief 离开
-    virtual std::unique_ptr<PlayerState> handleInput(engine::core::Context&) = 0;   ///< @brief 处理输入
     virtual std::unique_ptr<PlayerState> update(float, engine::core::Context&) = 0; ///< @brief 更新
-    /* handleInput 和 update 返回值为下一个状态，如果不需要切换状态，则返回 nullptr */
+    /* update 返回值为下一个状态，如果不需要切换状态，则返回 nullptr （不再需要 handleInput 方法）*/
 
 };
 

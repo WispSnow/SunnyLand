@@ -12,8 +12,13 @@ public:
 private:
     void enter() override;
     void exit() override;
-    std::unique_ptr<PlayerState> handleInput(engine::core::Context&) override;
     std::unique_ptr<PlayerState> update(float delta_time, engine::core::Context&) override;
+
+    std::unique_ptr<PlayerState> moveLeft() override;
+    std::unique_ptr<PlayerState> moveRight() override;
+    std::unique_ptr<PlayerState> jump() override;
+    std::unique_ptr<PlayerState> climbUp() override;
+    std::unique_ptr<PlayerState> climbDown() override;
 };
 
 } // namespace game::component::state

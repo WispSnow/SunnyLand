@@ -68,6 +68,13 @@ public:
 
     bool takeDamage(int damage);        ///< @brief 试图造成伤害，返回是否成功
 
+    // --- 移动操作逻辑将委托给状态类，由状态类实现具体逻辑 ---
+    void moveLeft();
+    void moveRight();
+    void jump();
+    void climbUp();
+    void climbDown();
+
     // setters and getters
     engine::component::TransformComponent* getTransformComponent() const { return transform_component_; }
     engine::component::SpriteComponent* getSpriteComponent() const { return sprite_component_; }

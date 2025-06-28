@@ -1,11 +1,9 @@
 #include "climb_state.h"
 #include "jump_state.h"
 #include "idle_state.h"
-#include "walk_state.h"
 #include "fall_state.h"
 #include "../player_component.h"
 #include "../../../engine/core/context.h"
-#include "../../../engine/input/input_manager.h"
 #include "../../../engine/component/physics_component.h"
 #include "../../../engine/component/sprite_component.h"
 #include "../../../engine/component/animation_component.h"
@@ -30,38 +28,13 @@ void ClimbState::exit() {
     }
 }
 
-std::unique_ptr<PlayerState> ClimbState::handleInput(engine::core::Context& context) {
-    
-    auto input_manager = context.getInputManager();
+std::unique_ptr<PlayerState> ClimbState::update(float, engine::core::Context&) {
     auto physics_component = player_component_->getPhysicsComponent();
     auto animation_component = player_component_->getAnimationComponent();
 
-    // --- 攀爬状态下，按键则移动，不按键则静止 ---
-    auto is_up = input_manager.isActionDown("move_up");
-    auto is_down = input_manager.isActionDown("move_down");
-    auto is_left = input_manager.isActionDown("move_left");
-    auto is_right = input_manager.isActionDown("move_right");
-    auto speed = player_component_->getClimbSpeed();
+    // 根据是否正在移动，决定是否播放动画
+    is_moving_ ? animation_component->resumeAnimation() : animation_component->stopAnimation();
 
-    physics_component->velocity_.y = is_up ? -speed :   // 三目运算符嵌套，自左向右执行
-                                     is_down ? speed : 0.0f;
-    physics_component->velocity_.x = is_left ? -speed :
-                                     is_right ? speed : 0.0f;
-
-    // --- 根据是否有按键决定动画播放情况 ---
-    (is_up || is_down || is_left || is_right)
-        ? animation_component->resumeAnimation()    // 有按键则恢复动画播放
-        : animation_component->stopAnimation();     // 无按键则停止动画播放
-    
-    // 按跳跃键主动离开攀爬状态
-    if (input_manager.isActionPressed("jump")) {
-        return std::make_unique<JumpState>(player_component_);
-    }
-    return nullptr;
-}
-
-std::unique_ptr<PlayerState> ClimbState::update(float, engine::core::Context&) {
-    auto physics_component = player_component_->getPhysicsComponent();
     // 如果着地，则切换到 IdleState
     if (physics_component->hasCollidedBelow()) {
         return std::make_unique<IdleState>(player_component_);
@@ -70,8 +43,50 @@ std::unique_ptr<PlayerState> ClimbState::update(float, engine::core::Context&) {
     if (!physics_component->hasCollidedLadder()) {
         return std::make_unique<FallState>(player_component_);
     }
+
+    is_moving_ = false;         // 循环的最后重置移动标志
+    physics_component->velocity_ = glm::vec2(0.0f, 0.0f);  // 速度归零(没有操控就静止不动)
     return nullptr;
 }
 
+std::unique_ptr<PlayerState> ClimbState::moveLeft() {
+    auto physics_component = player_component_->getPhysicsComponent();
+
+    // 水平向左移动
+    physics_component->velocity_.x = -player_component_->getClimbSpeed();
+    is_moving_ = true;
+    return nullptr;
+}
+
+std::unique_ptr<PlayerState> ClimbState::moveRight() {
+    auto physics_component = player_component_->getPhysicsComponent();
+    // 水平向右移动
+    physics_component->velocity_.x = player_component_->getClimbSpeed();
+    is_moving_ = true;
+    return nullptr;
+}
+
+std::unique_ptr<PlayerState> ClimbState::jump() {
+    // 直接切换到 JumpState
+    return std::make_unique<JumpState>(player_component_);
+}
+
+std::unique_ptr<PlayerState> ClimbState::climbUp() {
+    auto physics_component = player_component_->getPhysicsComponent();
+
+    // 向上移动
+    physics_component->velocity_.y = -player_component_->getClimbSpeed();
+    is_moving_ = true;
+    return nullptr;
+}
+
+std::unique_ptr<PlayerState> ClimbState::climbDown() {
+    auto physics_component = player_component_->getPhysicsComponent();
+
+    // 向下移动
+    physics_component->velocity_.y = player_component_->getClimbSpeed();
+    is_moving_ = true;
+    return nullptr;
+}
 
 } // namespace game::component::state

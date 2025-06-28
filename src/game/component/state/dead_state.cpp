@@ -1,7 +1,6 @@
 #include "dead_state.h"
 #include "../player_component.h"
 #include "../../../engine/object/game_object.h"
-#include "../../../engine/component/animation_component.h"
 #include "../../../engine/component/physics_component.h"
 #include "../../../engine/component/collider_component.h"
 #include "../../../engine/component/audio_component.h"
@@ -29,11 +28,6 @@ void DeadState::enter() {
 
 void DeadState::exit() {
 
-}
-
-std::unique_ptr<PlayerState> DeadState::handleInput(engine::core::Context&){
-    // 死亡状态下不处理输入
-    return nullptr;
 }
 
 std::unique_ptr<PlayerState> DeadState::update(float, engine::core::Context&){
