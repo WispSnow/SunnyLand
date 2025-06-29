@@ -29,7 +29,7 @@ void ObjectBuilderSL::build() {
 
 void ObjectBuilderSL::buildPlayer() {
     spdlog::trace("ObjectBuilderSL 构建玩家。");
-    if (!tile_json_ || name_ != "player") return;
+    if (!tile_json_ || game_object_->getTag() != "player") return;
     if (auto* player_component = game_object_->addComponent<game::component::PlayerComponent>(); player_component) {
         if (auto* transform = game_object_->getComponent<engine::component::TransformComponent>(); transform) {
             context_.getCamera().setTarget(transform);  // 相机跟随玩家

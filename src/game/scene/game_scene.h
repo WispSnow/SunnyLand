@@ -3,6 +3,7 @@
 #include <memory>
 #include <string_view>
 #include <glm/vec2.hpp>
+#include <unordered_map>
 
 // 前置声明
 namespace engine::object {
@@ -18,6 +19,14 @@ namespace engine::ui {
     class UIPanel;
 }
 
+namespace game::component {
+    class PlayerComponent;
+}
+
+namespace game::component::command {
+    class Command;
+}
+
 namespace game::scene {
 
 /**
@@ -29,11 +38,14 @@ class GameScene final: public engine::scene::Scene {
 
     engine::ui::UILabel* score_label_ = nullptr;        ///< @brief 得分标签 (生命周期由UIManager管理，因此使用裸指针)
     engine::ui::UIPanel* health_panel_ = nullptr;       ///< @brief 生命值图标面板
+    ///< @brief 命令映射表，用于存储不同按键对应的命令
+    std::unordered_map<std::string, std::unique_ptr<game::component::command::Command>> command_map_;
 
 public:
     GameScene(engine::core::Context& context, 
               engine::scene::SceneManager& scene_manager, 
               std::shared_ptr<game::data::SessionData> data = nullptr);
+    ~GameScene();       ///< @brief 析构函数在cpp中定义默认实现
 
     // 覆盖场景基类的核心方法
     void init() override;
@@ -46,6 +58,8 @@ private:
     [[nodiscard]] bool initLevel();               ///< @brief 初始化关卡
     [[nodiscard]] bool initPlayer();              ///< @brief 初始化玩家
     [[nodiscard]] bool initUI();                  ///< @brief 初始化UI
+
+    void setCommandMap(game::component::PlayerComponent& player_component);     ///< @brief 设置命令映射表, 针对特定的玩家目标对象
 
     void handleObjectCollisions();              ///< @brief 处理游戏对象间的碰撞逻辑（从PhysicsEngine获取信息）
     void handleTileTriggers();                  ///< @brief 处理瓦片触发事件（从PhysicsEngine获取信息）
@@ -72,6 +86,9 @@ private:
     void addScoreWithUI(int score);                 ///< @brief 增加得分，同时更新UI
     void healWithUI(int amount);                    ///< @brief 增加生命，同时更新UI
     void updateHealthWithUI();                      ///< @brief 更新生命值UI (只适用最大生命值不变的情况)
+
+    // --- 测试函数 ---
+    void switchPlayer();        ///< @brief 切换操控的玩家对象
 };
 
 } // namespace game::scene

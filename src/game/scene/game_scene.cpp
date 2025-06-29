@@ -24,17 +24,20 @@
 #include "../../engine/ui/ui_panel.h"
 #include "../../engine/ui/ui_label.h"
 #include "../../engine/ui/ui_image.h"
-#include "../../engine/ui/ui_button.h"
 #include "../../engine/utils/math.h"
 #include "../component/ai_component.h"
-#include "../component/ai/patrol_behavior.h"
-#include "../component/ai/updown_behavior.h"
-#include "../component/ai/jump_behavior.h"
+#include "../component/command/up_command.h"
+#include "../component/command/down_command.h"
+#include "../component/command/right_command.h"
+#include "../component/command/left_command.h"
+#include "../component/command/jump_command.h"
 #include "../data/session_data.h"
 #include "../object/object_builder_sl.h"
 #include <spdlog/spdlog.h>
 
 namespace game::scene {
+
+GameScene::~GameScene() = default;
 
 GameScene::GameScene(engine::core::Context& context, 
                      engine::scene::SceneManager& scene_manager,
@@ -68,6 +71,14 @@ void GameScene::init() {
     }
     if (!initUI()) {
         spdlog::error("UI初始化失败，无法继续。");
+        context_.getInputManager().setShouldQuit(true);
+        return;
+    }
+    // 设置命令映射表
+    if (auto player_component = player_->getComponent<game::component::PlayerComponent>(); player_component) {  
+        setCommandMap(*player_component);
+    } else {
+        spdlog::error("玩家对象缺少 PlayerComponent 组件，无法设置命令映射表");
         context_.getInputManager().setShouldQuit(true);
         return;
     }
@@ -106,6 +117,36 @@ void GameScene::handleInput() {
     if (context_.getInputManager().isActionPressed("pause")) {
         spdlog::debug("在GameScene中检测到暂停动作，正在推送MenuScene。");
         scene_manager_.requestPushScene(std::make_unique<MenuScene>(context_, scene_manager_, game_session_data_));
+    }
+    // --- 将之前PlayerComponent的handleInput方法逻辑移到这里 ---
+    // 判断左右移动操作
+    if (context_.getInputManager().isActionDown("move_left")) {
+        if (auto command = command_map_.find("move_left"); command != command_map_.end()) {
+            command->second->execute();
+        }
+    } else if (context_.getInputManager().isActionDown("move_right")) {
+        if (auto command = command_map_.find("move_right"); command != command_map_.end()) {
+            command->second->execute();
+        }
+    }
+    // 判断跳跃或上下移动操作（可以和左右操作同时进行）
+    if (context_.getInputManager().isActionPressed("jump")) {
+        if (auto command = command_map_.find("jump"); command != command_map_.end()) {
+            command->second->execute();
+        }
+    } else if (context_.getInputManager().isActionDown("move_up")) {
+        if (auto command = command_map_.find("move_up"); command != command_map_.end()) {
+            command->second->execute();
+        }
+    } else if (context_.getInputManager().isActionDown("move_down")) {
+        if (auto command = command_map_.find("move_down"); command != command_map_.end()) {
+            command->second->execute();
+        }
+    }
+
+    // 切换操控的玩家对象（按攻击键 K键）
+    if (context_.getInputManager().isActionPressed("attack")) {
+        switchPlayer();
     }
 }
 
@@ -173,6 +214,10 @@ bool GameScene::initPlayer()
         return false;
     }
 
+    // 根据当前玩家对象设置相机目标
+    auto transform = player_->getComponent<engine::component::TransformComponent>();
+    context_.getCamera().setTarget(transform);
+
     return true;
 }
 
@@ -183,6 +228,16 @@ bool GameScene::initUI()
     createScoreUI();
     createHealthUI();
     return true;
+}
+
+void GameScene::setCommandMap(game::component::PlayerComponent& player_component)
+{
+    // 使用 operator[] 进行覆盖性插入
+    command_map_["move_up"] = std::make_unique<game::component::command::UpCommand>(player_component);
+    command_map_["move_down"] = std::make_unique<game::component::command::DownCommand>(player_component);
+    command_map_["move_left"] = std::make_unique<game::component::command::LeftCommand>(player_component);
+    command_map_["move_right"] = std::make_unique<game::component::command::RightCommand>(player_component);
+    command_map_["jump"] = std::make_unique<game::component::command::JumpCommand>(player_component);
 }
 
 void GameScene::handleObjectCollisions()
@@ -440,6 +495,38 @@ void GameScene::healWithUI(int amount)
 {
     player_->getComponent<engine::component::HealthComponent>()->heal(amount);
     updateHealthWithUI();                              // 更新生命值与UI
+}
+
+void GameScene::switchPlayer()
+{
+    spdlog::info("切换操控的玩家对象");
+    // 确认有第二个玩家对象
+    auto player2 = findGameObjectByName("player2");
+    if (!player2) {
+        spdlog::error("未找到玩家对象");
+        return;
+    }
+    
+    static engine::object::GameObject* current_player = player_;    // 用静态变量追踪当前操控的玩家对象
+
+    // 切换操控的玩家对象
+    if (current_player == player_) {
+        current_player = player2; 
+    } else {
+        current_player = player_;
+    }
+
+    // 根据当前玩家对象设置相机目标
+    auto transform = current_player->getComponent<engine::component::TransformComponent>();
+    context_.getCamera().setTarget(transform);
+
+    // 根据当前玩家对象设置操控命令映射表
+    auto player_component = current_player->getComponent<game::component::PlayerComponent>();
+    if (!player_component) {
+        spdlog::error("玩家对象缺少 PlayerComponent 组件，无法设置操控命令映射表");
+        return;
+    }
+    setCommandMap(*player_component);   
 }
 
 } // namespace game::scene 

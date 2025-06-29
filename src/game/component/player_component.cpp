@@ -115,21 +115,6 @@ bool PlayerComponent::is_on_ground() const
     return coyote_timer_ <= coyote_time_ || physics_component_->hasCollidedBelow();
 }
 
-void PlayerComponent::handleInput(engine::core::Context& context) {
-    if (!current_state_) return;
-
-    // --- 现在在这里负责判断输入并调用对应的方法，不再将handleInput委托给状态类处理 ---
-    auto& input_manager = context.getInputManager();
-    // 判断左右移动操作
-    if (input_manager.isActionDown("move_left")) moveLeft();
-    else if (input_manager.isActionDown("move_right")) moveRight();
-    // 判断跳跃或上下移动操作（可以和左右操作同时进行）
-    if (input_manager.isActionPressed("jump")) jump();
-    else if (input_manager.isActionDown("move_up")) climbUp();
-    else if (input_manager.isActionDown("move_down")) climbDown();
-
-}
-
 void PlayerComponent::update(float delta_time, engine::core::Context& context) {
     if (!current_state_) return;
 

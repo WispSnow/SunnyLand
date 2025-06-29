@@ -104,7 +104,6 @@ public:
 private:
     // 核心循环函数
     void init() override;
-    void handleInput(engine::core::Context& context) override;
     void update(float delta_time, engine::core::Context& context) override;
     
 };

@@ -90,6 +90,11 @@ set(SOURCES
     src/game/component/ai/patrol_behavior.cpp
     src/game/component/ai/updown_behavior.cpp
     src/game/component/ai/jump_behavior.cpp
+    src/game/component/command/up_command.cpp
+    src/game/component/command/right_command.cpp
+    src/game/component/command/left_command.cpp
+    src/game/component/command/jump_command.cpp
+    src/game/component/command/down_command.cpp
     src/game/data/session_data.cpp
     src/game/object/object_builder_sl.cpp
 )
