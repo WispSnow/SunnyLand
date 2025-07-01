@@ -8,12 +8,12 @@ namespace game::data {
 
 /**
  * @brief 管理不同游戏场景之间的游戏状态
- * 注册为Subject，得分改变时通知UI更新
+ * 同时注册为Subject和Observer，得分改变时通知UI更新，观察HealthComponent的改变并同步数据
  *
  * 存储玩家生命值、分数、当前关卡等信息，
  * 使这些数据在场景切换时能够保持。
  */
-class SessionData final : public engine::interface::Subject {
+class SessionData final : public engine::interface::Subject , public engine::interface::Observer{
 private:
     int current_health_ = 3;
     int max_health_ = 3;
@@ -34,6 +34,9 @@ public:
     SessionData& operator=(const SessionData&) = delete;
     SessionData(SessionData&&) = delete;
     SessionData& operator=(SessionData&&) = delete;
+
+    // 实现Observer接口(HealthComponent的改变时同步数据)
+    void onNotify(const engine::interface::EventType event, const std::any& data) override;
 
     // --- Getters ---
     int getCurrentHealth() const { return current_health_; }

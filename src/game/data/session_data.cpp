@@ -7,6 +7,18 @@
 
 namespace game::data {
 
+void SessionData::onNotify(const engine::interface::EventType event, const std::any& data) {
+    if (event == engine::interface::EventType::HEALTH_CHANGED) {
+        if (const int* health = std::any_cast<int>(&data)) {
+            setCurrentHealth(*health);
+        }
+    } else if (event == engine::interface::EventType::MAX_HEALTH_CHANGED) {
+        if (const int* max_health = std::any_cast<int>(&data)) {
+            setMaxHealth(*max_health);
+        }
+    }
+}
+
 void SessionData::setCurrentHealth(int health) {
     // 将生命值限制在 0 和 max_health_ 之间
     current_health_ = glm::clamp(health, 0, max_health_);

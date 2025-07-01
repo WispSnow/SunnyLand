@@ -219,6 +219,8 @@ bool GameScene::initPlayer()
         health_component->setCurrentHealth(game_session_data_->getCurrentHealth());
         // 注册订阅关系（GameScene 观察 HealthComponent 的生命值改变事件）
         health_component->addObserver(this);
+        // SessionData 也同步更新 HealthComponent 的生命值改变事件
+        health_component->addObserver(game_session_data_.get());
     } else {
         spdlog::error("玩家对象缺少 HealthComponent 组件，无法设置生命值");
         return false;
@@ -439,8 +441,12 @@ void GameScene::createScoreUI() {
 }
 
 void GameScene::createHealthUI() {
-    int max_health = game_session_data_->getMaxHealth();
-    int current_health = game_session_data_->getCurrentHealth();
+    // 获取当前生命值和最大生命值（不用再管SessionData，它会自动跟着HealthComponent更新）
+    auto health_component = player_->getComponent<engine::component::HealthComponent>();
+    int max_health = health_component->getMaxHealth();
+    int current_health = health_component->getCurrentHealth();
+
+    // 设置UI位置和大小
     float start_x = 10.0f;
     float start_y = 10.0f;
     float icon_width = 20.0f;
@@ -480,10 +486,10 @@ void GameScene::updateHealthWithUI()
         spdlog::error("玩家对象或 HealthPanel 不存在，无法更新生命值UI");
         return;
     }
-    // 获取当前生命值并更新游戏数据
-    auto current_health = player_->getComponent<engine::component::HealthComponent>()->getCurrentHealth();
-    game_session_data_->setCurrentHealth(current_health);
-    auto max_health = game_session_data_->getMaxHealth();
+    // 获取当前生命值并更新UI（不用再管SessionData，它会自动跟着HealthComponent更新）
+    auto health_component = player_->getComponent<engine::component::HealthComponent>();
+    auto current_health = health_component->getCurrentHealth();
+    auto max_health = health_component->getMaxHealth();
 
     // 前景图标是后添加的，因此设置后半段的可见性即可
     for (auto i = max_health; i < max_health * 2; ++i) {
