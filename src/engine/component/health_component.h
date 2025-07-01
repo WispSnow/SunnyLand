@@ -1,12 +1,14 @@
 #pragma once
 #include "../../engine/component/component.h"
+#include "../../engine/interface/subject.h"
 
 namespace engine::component {
 
 /**
  * @brief 管理 GameObject 的生命值，处理伤害、治疗，并提供无敌帧功能。
+ * 注册为Subject，处理伤害、治疗事件，通知UI更新
  */
-class HealthComponent final : public engine::component::Component {
+class HealthComponent final : public engine::component::Component, public engine::interface::Subject {
     friend class engine::object::GameObject;
 private:
     int max_health_ = 1;                    ///< @brief 最大生命值

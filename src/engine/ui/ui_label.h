@@ -2,6 +2,7 @@
 #include "ui_element.h"
 #include "../utils/math.h"
 #include "../render/text_renderer.h"
+#include "../interface/observer.h"
 #include <string>
 #include <string_view>
 
@@ -9,13 +10,14 @@ namespace engine::ui {
 
 /**
  * @brief UILabel 类用于创建和管理用户界面中的文本标签
+ * 注册为Observer，处理SessionData的通知事件，更新UI
  * 
  * UILabel 继承自 UIElement，提供了文本渲染功能。
  * 它可以设置文本内容、字体ID、字体大小和文本颜色。
  * 
  * @note 需要一个文本渲染器来获取和更新文本尺寸。
  */
-class UILabel final : public UIElement {
+class UILabel final : public UIElement, public engine::interface::Observer {
 private:
     engine::render::TextRenderer& text_renderer_;   ///< @brief 需要文本渲染器，用于获取/更新文本尺寸
     
@@ -41,6 +43,9 @@ public:
             int font_size = 16,
             engine::utils::FColor text_color = {1.0f, 1.0f, 1.0f, 1.0f},
             glm::vec2 position = {0.0f, 0.0f});
+
+    /// @brief 实现Observer接口，处理事件通知
+    void onNotify(const engine::interface::EventType event, const std::any& data) override;
 
     // --- 核心方法 ---
     void render(engine::core::Context& context) override;

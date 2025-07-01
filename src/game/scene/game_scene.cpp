@@ -47,7 +47,20 @@ GameScene::GameScene(engine::core::Context& context,
         game_session_data_ = std::make_shared<game::data::SessionData>();
         spdlog::info("未提供 SessionData，使用默认值。");
     }
+
+    game_session_data_->clearObservers();     // 清空SessionData中可能存在的其他观察者（避免悬垂指针）
     spdlog::trace("GameScene 构造完成。");
+}
+
+void GameScene::onNotify(const engine::interface::EventType event, const std::any&) {
+    /* NOTE: 如果我们封装HealthUI为新的类，那么GameScene就不需要设为Observer了
+             而是在HealthUI中实现Observer接口（进一步解耦）
+             这里我们简化，直接在GameScene中处理    */
+    if (event == engine::interface::EventType::HEALTH_CHANGED) {
+        updateHealthWithUI();
+    } else if (event == engine::interface::EventType::MAX_HEALTH_CHANGED) {
+        createHealthUI();
+    }
 }
 
 void GameScene::init() {
@@ -143,11 +156,6 @@ void GameScene::handleInput() {
             command->second->execute();
         }
     }
-
-    // 切换操控的玩家对象（按攻击键 K键）
-    if (context_.getInputManager().isActionPressed("attack")) {
-        switchPlayer();
-    }
 }
 
 void GameScene::clean() {
@@ -209,14 +217,12 @@ bool GameScene::initPlayer()
     if (auto health_component = player_->getComponent<engine::component::HealthComponent>(); health_component) {
         health_component->setMaxHealth(game_session_data_->getMaxHealth());
         health_component->setCurrentHealth(game_session_data_->getCurrentHealth());
+        // 注册订阅关系（GameScene 观察 HealthComponent 的生命值改变事件）
+        health_component->addObserver(this);
     } else {
         spdlog::error("玩家对象缺少 HealthComponent 组件，无法设置生命值");
         return false;
     }
-
-    // 根据当前玩家对象设置相机目标
-    auto transform = player_->getComponent<engine::component::TransformComponent>();
-    context_.getCamera().setTarget(transform);
 
     return true;
 }
@@ -310,8 +316,7 @@ void GameScene::handlePlayerDamage(int damage)
         spdlog::info("玩家 {} 死亡", player_->getName());
         // TODO: 可能的死亡逻辑处理
     }
-    // 更新生命值及HealthUI
-    updateHealthWithUI();
+    // 不再需要手动更新生命值及HealthUI，因为HealthComponent会自动通知UI更新
 }
 
 void GameScene::playerVSEnemyCollision(engine::object::GameObject *player, engine::object::GameObject *enemy)
@@ -341,8 +346,8 @@ void GameScene::playerVSEnemyCollision(engine::object::GameObject *player, engin
         player->getComponent<engine::component::PhysicsComponent>()->velocity_.y = -300.0f;  // 向上跳起
         // 播放音效 (此音效完全可以放在玩家的音频组件中，这里示例另一种用法：直接用AudioPlayer播放，传入文件路径)
         context_.getAudioPlayer().playSound("assets/audio/punch2a.mp3");
-        // 加分
-        addScoreWithUI(10);
+        // 加分 (这里直接调用SessionData的addScore方法，它会自动通知UI更新)
+        game_session_data_->addScore(10);
     }
     // 踩踏判断失败，玩家受伤
     else {
@@ -354,9 +359,9 @@ void GameScene::playerVSEnemyCollision(engine::object::GameObject *player, engin
 void GameScene::playerVSItemCollision(engine::object::GameObject*, engine::object::GameObject * item)
 {
     if (item->getName() == "fruit") {
-        healWithUI(1);        // 加血
+        player_->getComponent<engine::component::HealthComponent>()->heal(1);
     } else if (item->getName() == "gem") {
-        addScoreWithUI(5);    // 加5分
+        game_session_data_->addScore(5);
     }
     item->setNeedRemove(true);  // 标记道具为待删除状态
     auto item_aabb = item->getComponent<engine::component::ColliderComponent>()->getWorldAABB();
@@ -428,6 +433,9 @@ void GameScene::createScoreUI() {
     auto screen_size = ui_manager_->getRootElement()->getSize();        // 获取屏幕尺寸
     score_label_->setPosition(glm::vec2(screen_size.x - 100.0f, 10.0f));
     ui_manager_->addElement(std::move(score_label));
+
+    // 注册订阅关系（UILabel 观察 SessionData 的得分改变事件）
+    game_session_data_->addObserver(score_label_);
 }
 
 void GameScene::createHealthUI() {
@@ -481,52 +489,6 @@ void GameScene::updateHealthWithUI()
     for (auto i = max_health; i < max_health * 2; ++i) {
         health_panel_->getChildren()[i]->setVisible(i - max_health < current_health);
     }
-}
-
-void GameScene::addScoreWithUI(int score)
-{
-    game_session_data_->addScore(score);
-    auto score_text = "Score: " + std::to_string(game_session_data_->getCurrentScore());
-    spdlog::info("得分: {}", score_text);
-    score_label_->setText(score_text);
-}
-
-void GameScene::healWithUI(int amount)
-{
-    player_->getComponent<engine::component::HealthComponent>()->heal(amount);
-    updateHealthWithUI();                              // 更新生命值与UI
-}
-
-void GameScene::switchPlayer()
-{
-    spdlog::info("切换操控的玩家对象");
-    // 确认有第二个玩家对象
-    auto player2 = findGameObjectByName("player2");
-    if (!player2) {
-        spdlog::error("未找到玩家对象");
-        return;
-    }
-    
-    static engine::object::GameObject* current_player = player_;    // 用静态变量追踪当前操控的玩家对象
-
-    // 切换操控的玩家对象
-    if (current_player == player_) {
-        current_player = player2; 
-    } else {
-        current_player = player_;
-    }
-
-    // 根据当前玩家对象设置相机目标
-    auto transform = current_player->getComponent<engine::component::TransformComponent>();
-    context_.getCamera().setTarget(transform);
-
-    // 根据当前玩家对象设置操控命令映射表
-    auto player_component = current_player->getComponent<game::component::PlayerComponent>();
-    if (!player_component) {
-        spdlog::error("玩家对象缺少 PlayerComponent 组件，无法设置操控命令映射表");
-        return;
-    }
-    setCommandMap(*player_component);   
 }
 
 } // namespace game::scene 

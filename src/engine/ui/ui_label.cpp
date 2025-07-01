@@ -22,6 +22,16 @@ UILabel::UILabel(engine::render::TextRenderer& text_renderer,
     spdlog::trace("UILabel 构造完成");
 }
 
+void UILabel::onNotify(const engine::interface::EventType event, const std::any& data) {
+    if (event == engine::interface::EventType::SCORE_CHANGED) {
+        if (const int* score = std::any_cast<int>(&data)) {     // 针对std::any数据的常用安全判断方式
+            setText("Score: " + std::to_string(*score));
+        } else {
+            spdlog::warn("UILabel::onNotify: SCORE_CHANGED 事件接收到无效的数据类型。");
+        }
+    }
+}
+
 void UILabel::render(engine::core::Context& context) {
     if (!visible_ || text_.empty()) return;
 

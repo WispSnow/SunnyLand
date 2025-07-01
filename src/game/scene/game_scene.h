@@ -1,5 +1,6 @@
 #pragma once
 #include "../../engine/scene/scene.h"
+#include "../../engine/interface/observer.h"
 #include <memory>
 #include <string_view>
 #include <glm/vec2.hpp>
@@ -31,8 +32,9 @@ namespace game::scene {
 
 /**
  * @brief 主要的游戏场景，包含玩家、敌人、关卡元素等。
+ * 注册为Observer，处理HealthComponent的通知事件，更新UI
  */
-class GameScene final: public engine::scene::Scene {
+class GameScene final: public engine::scene::Scene, public engine::interface::Observer {
     std::shared_ptr<game::data::SessionData> game_session_data_;    ///< @brief 场景间共享数据，因此用shared_ptr
     engine::object::GameObject* player_ = nullptr;                  ///< @brief 保存玩家对象的指针，方便访问
 
@@ -46,6 +48,9 @@ public:
               engine::scene::SceneManager& scene_manager, 
               std::shared_ptr<game::data::SessionData> data = nullptr);
     ~GameScene();       ///< @brief 析构函数在cpp中定义默认实现
+
+    /// @brief 实现Observer接口，处理事件通知
+    void onNotify(const engine::interface::EventType event, const std::any& data) override;
 
     // 覆盖场景基类的核心方法
     void init() override;
@@ -83,12 +88,7 @@ private:
     // --- UI 相关函数 ---
     void createScoreUI();                           ///< @brief 创建得分UI
     void createHealthUI();                          ///< @brief 创建生命值UI (或最大生命值改变时重设)
-    void addScoreWithUI(int score);                 ///< @brief 增加得分，同时更新UI
-    void healWithUI(int amount);                    ///< @brief 增加生命，同时更新UI
     void updateHealthWithUI();                      ///< @brief 更新生命值UI (只适用最大生命值不变的情况)
-
-    // --- 测试函数 ---
-    void switchPlayer();        ///< @brief 切换操控的玩家对象
 };
 
 } // namespace game::scene

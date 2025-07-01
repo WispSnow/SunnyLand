@@ -25,6 +25,9 @@ void SessionData::setMaxHealth(int max_health) {
 void SessionData::addScore(int score_to_add) {
     current_score_ += score_to_add;
     setHighScore(glm::max(high_score_, current_score_)); // 如果当前分数超过最高分，则更新最高分
+
+    // 通知观察者
+    notifyObservers(engine::interface::EventType::SCORE_CHANGED, current_score_);
 }
 
 void SessionData::reset() {

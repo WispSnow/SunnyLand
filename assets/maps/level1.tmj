@@ -325,18 +325,6 @@
                  "width":0,
                  "x":87,
                  "y":43
-                }, 
-                {
-                 "gid":608,
-                 "height":32,
-                 "id":20,
-                 "name":"player2",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":336,
-                 "y":384
                 }],
          "opacity":1,
          "type":"objectgroup",

@@ -34,6 +34,10 @@ bool HealthComponent::takeDamage(int damage_amount) {
     // --- 确实造成伤害了 ---
     current_health_ -= damage_amount;
     current_health_ = glm::max(0, current_health_); // 防止生命值变为负数
+    
+    // 通知观察者
+    notifyObservers(engine::interface::EventType::HEALTH_CHANGED, current_health_);
+
     // 如果受伤但没死，并且设置了无敌时间，则触发无敌
     if (isAlive() && invincibility_duration_ > 0.0f) {
         setInvincible(invincibility_duration_);
@@ -50,6 +54,10 @@ int HealthComponent::heal(int heal_amount) {
 
     current_health_ += heal_amount;
     current_health_ = std::min(max_health_, current_health_); // 防止超过最大生命值
+
+    // 通知观察者
+    notifyObservers(engine::interface::EventType::HEALTH_CHANGED, current_health_);
+
     spdlog::debug("游戏对象 '{}' 治疗了 {} 点，当前生命值: {}/{}。",
                   owner_ ? owner_->getName() : "Unknown", heal_amount, current_health_, max_health_);
     return current_health_;
@@ -74,12 +82,18 @@ void HealthComponent::setMaxHealth(int max_health)
 {
     max_health_ = glm::max(1, max_health); // 确保最大生命值至少为 1
     current_health_ = glm::min(current_health_, max_health_); // 确保当前生命值不超过最大生命值
+
+    // 通知观察者
+    notifyObservers(engine::interface::EventType::MAX_HEALTH_CHANGED, max_health_);
 }
 
 void HealthComponent::setCurrentHealth(int current_health)
 {
     // 确保当前生命值在 0 到最大生命值之间
     current_health_ = glm::max(0, glm::min(current_health, max_health_));
+
+    // 通知观察者
+    notifyObservers(engine::interface::EventType::HEALTH_CHANGED, current_health_);
 }
 
 } // namespace engine::component
