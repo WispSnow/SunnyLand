@@ -1,4 +1,5 @@
 #pragma once
+#include "../../engine/interface/observer.h"
 #include "../../engine/interface/subject.h"
 #include <string>
 #include <string_view>

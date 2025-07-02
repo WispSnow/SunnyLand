@@ -1,5 +1,6 @@
 #include "health_component.h"
 #include "../../engine/object/game_object.h"
+#include "../../engine/interface/observer.h"
 #include <spdlog/spdlog.h>
 #include <glm/common.hpp>
 

@@ -1,11 +1,10 @@
 #pragma once
-
-#include "observer.h"
 #include <vector>
-#include <algorithm>
 #include <any>
 
 namespace engine::interface {
+    class Observer;
+    enum class EventType;
 
 /**
  * @brief Subject 类，用于实现观察者模式。
@@ -19,28 +18,22 @@ private:
     std::vector<Observer*> observers_;  
 
 public:
-    virtual ~Subject() = default;
+    virtual ~Subject();     ///< @brief 析构函数中，让所有 Observer 移除对自身的引用
 
     /**
      * @brief 添加一个观察者。
      * @param observer 指向要添加的观察者的指针。观察者的生命周期由外部管理。
      */
-    void addObserver(Observer* observer) { observers_.push_back(observer); }
+    void addObserver(Observer* observer);
 
     /**
      * @brief 移除一个观察者。
      * @param observer 指向要移除的观察者的指针。
      */
-    void removeObserver(Observer* observer) {
-        // 使用 remove-erase idiom 来安全地移除观察者
-        observers_.erase(std::remove(observers_.begin(), 
-                                      observers_.end(), 
-                                     observer), 
-                   observers_.end());
-    }
+    void removeObserver(Observer* observer);
 
     /// @brief 清空所有观察者
-    void clearObservers() { observers_.clear(); }
+    void clearObservers();
 
 protected:
     /**
@@ -50,13 +43,7 @@ protected:
      * @param event 事件类型
      * @param data 事件数据
      */
-    void notifyObservers(const EventType& event, const std::any& data) {
-        for (auto* observer : observers_) {
-            if (observer) {
-                observer->onNotify(event, data);
-            }
-        }
-    }
+    void notifyObservers(const EventType& event, const std::any& data);
 };
 
 } // namespace engine::interface 

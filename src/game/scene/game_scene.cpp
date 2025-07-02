@@ -47,8 +47,7 @@ GameScene::GameScene(engine::core::Context& context,
         game_session_data_ = std::make_shared<game::data::SessionData>();
         spdlog::info("未提供 SessionData，使用默认值。");
     }
-
-    game_session_data_->clearObservers();     // 清空SessionData中可能存在的其他观察者（避免悬垂指针）
+    // 这里不再需要清空SessionData中的观察者，Observer在析构时会自动解除联系    
     spdlog::trace("GameScene 构造完成。");
 }
 
