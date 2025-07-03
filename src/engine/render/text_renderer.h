@@ -99,12 +99,12 @@ public:
     // --- 使用缓存绘制的版本（只接受左值引用） ---
 
     void drawUIText(const std::string& text, std::string_view font_id, int font_size, 
-                  const glm::vec2& position, const engine::utils::FColor& color = {1.0f, 1.0f, 1.0f, 1.0f});
+                  const glm::vec2& position, const engine::utils::FColor& color = {1.0f, 1.0f, 1.0f, 1.0f}, bool is_dirty = true);
 
     void drawText(const Camera& camera, const std::string& text, std::string_view font_id, int font_size, 
-                  const glm::vec2& position, const engine::utils::FColor& color = {1.0f, 1.0f, 1.0f, 1.0f});
+                  const glm::vec2& position, const engine::utils::FColor& color = {1.0f, 1.0f, 1.0f, 1.0f}, bool is_dirty = true);
 
-    glm::vec2 getTextSize(const std::string& text, std::string_view font_id, int font_size);
+    glm::vec2 getTextSize(const std::string& text, std::string_view font_id, int font_size, bool is_dirty = true);
 
     // 禁用拷贝和移动语义
     TextRenderer(const TextRenderer&) = delete;

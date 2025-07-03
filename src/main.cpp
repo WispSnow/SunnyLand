@@ -12,7 +12,7 @@ void setupInitialScene(engine::scene::SceneManager& scene_manager) {
 
 
 int main(int /* argc */, char* /* argv */[]) {
-    spdlog::set_level(spdlog::level::trace);
+    spdlog::set_level(spdlog::level::info);
 
     engine::core::GameApp app;
     app.registerSceneSetup(setupInitialScene);

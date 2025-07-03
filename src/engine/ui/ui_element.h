@@ -51,7 +51,7 @@ public:
     void removeAllChildren();                                       ///< @brief 移除所有子元素
 
     // --- Getters and Setters ---
-    const glm::vec2& getSize() const { return size_; }              ///< @brief 获取元素大小
+    const virtual glm::vec2& getSize() { return size_; }            ///< @brief 获取元素大小（可重写）
     const glm::vec2& getPosition() const { return position_; }      ///< @brief 获取元素位置(相对于父节点)
     bool isVisible() const { return visible_; }                     ///< @brief 检查元素是否可见
     bool isNeedRemove() const { return need_remove_; }              ///< @brief 检查元素是否需要移除

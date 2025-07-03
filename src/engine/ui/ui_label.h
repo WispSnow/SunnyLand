@@ -25,6 +25,8 @@ private:
     std::string font_id_;                       ///< @brief 字体ID
     int font_size_;                             ///< @brief 字体大小   
     engine::utils::FColor text_fcolor_ = {1.0f, 1.0f, 1.0f, 1.0f};
+
+    bool is_dirty_ = true;                      ///< @brief 脏标志，用于标记是否需要重新设置TTF_Text
     /* 可添加其他内容，例如边框、底色 */
 
 public:
@@ -51,6 +53,7 @@ public:
     void render(engine::core::Context& context) override;
 
     // --- Setters & Getters ---
+    const glm::vec2& getSize() override;            ///< @brief 重写父类方法，需要返回文本尺寸时再重新大小
     std::string_view getText() const { return text_; }
     std::string_view getFontId() const { return font_id_; }
     int getFontSize() const { return font_size_; }

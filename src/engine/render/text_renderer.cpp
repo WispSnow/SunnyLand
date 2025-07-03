@@ -117,29 +117,42 @@ glm::vec2 TextRenderer::getTextSize(std::string&& text, std::string_view font_id
 // --- 使用缓存绘制的版本 ---
 
 void TextRenderer::drawUIText(const std::string& text, std::string_view font_id, int font_size,
-                              const glm::vec2 &position, const engine::utils::FColor &color)
+                              const glm::vec2 &position, const engine::utils::FColor &color, bool is_dirty)
 {
     spdlog::trace("使用缓存绘制文本: {}, 缓存数量: {}", text, text_cache_.size());
-    // 获取字体
-    TTF_Font* font = resource_manager_->getFont(font_id, font_size);
-    if (!font) {
-        spdlog::warn("drawUIText 获取字体失败: {} 大小 {}", font_id, font_size);
-        return;
-    }
-    // 获取TTF_Text对象
-    auto text_object = getTTFText(text);
-    if (!text_object) {
-        // 没有找到，则创建一个TTF_Text对象并添加缓存
-        text_object = createTTFText(text, font);
+    TTF_Text* text_object = nullptr;
+
+    // 如果脏标志为true，则先获取TTF_Text(可能需要创建)，然后设置文本和字体
+    if (is_dirty) {     
+        // 获取字体
+        TTF_Font* font = resource_manager_->getFont(font_id, font_size);
+        if (!font) {
+            spdlog::warn("drawUIText 获取字体失败: {} 大小 {}", font_id, font_size);
+            return;
+        }
+        // 获取TTF_Text对象
+        text_object = getTTFText(text);
         if (!text_object) {
-            spdlog::error("drawUIText 创建 TTF_Text 失败: {}", SDL_GetError());
+            // 没有找到，则创建一个TTF_Text对象并添加缓存
+            text_object = createTTFText(text, font);
+            if (!text_object) {
+                spdlog::error("drawUIText 创建 TTF_Text 失败: {}", SDL_GetError());
+                return;
+            }
+        }
+
+        // 设置文本和字体
+        TTF_SetTextFont(text_object, font);
+        TTF_SetTextString(text_object, text.data(), 0);
+        spdlog::info("drawUIText 重新设置了 TTF_Text 的文本和字体: {}", text);
+    } else {
+        // 如果脏标志为false，则直接获取TTF_Text对象，不需要再设置文本和字体，直接使用
+        text_object = getTTFText(text);
+        if (!text_object) {
+            spdlog::error("drawUIText 获取 TTF_Text 失败: {}", SDL_GetError());
             return;
         }
     }
-
-    // 设置文本和字体（每一帧都设置一次真的合适吗？）
-    TTF_SetTextFont(text_object, font);
-    TTF_SetTextString(text_object, text.data(), 0);
 
     // 先渲染一次黑色文字模拟阴影
     TTF_SetTextColorFloat(text_object, 0.0f, 0.0f, 0.0f, 1.0f);
@@ -155,34 +168,47 @@ void TextRenderer::drawUIText(const std::string& text, std::string_view font_id,
 }
 
 void TextRenderer::drawText(const Camera &camera, const std::string& text, std::string_view font_id, int font_size, 
-                            const glm::vec2 &position, const engine::utils::FColor &color)
+                            const glm::vec2 &position, const engine::utils::FColor &color, bool is_dirty)
 {
     // 应用相机变换
     glm::vec2 position_screen = camera.worldToScreen(position);
 
     // 用新坐标调用drawUIText即可
-    drawUIText(text, font_id, font_size, position_screen, color);
+    drawUIText(text, font_id, font_size, position_screen, color, is_dirty);
 }
 
-glm::vec2 TextRenderer::getTextSize(const std::string& text, std::string_view font_id, int font_size) {
+glm::vec2 TextRenderer::getTextSize(const std::string& text, std::string_view font_id, int font_size, bool is_dirty) {
     TTF_Font* font = resource_manager_->getFont(font_id, font_size);
-    if (!font) {
-        spdlog::warn("getTextSize 获取字体失败: {} 大小 {}", font_id, font_size);
-        return glm::vec2(0.0f, 0.0f);
-    }
+    TTF_Text* text_object = nullptr;
+    // 如果脏标志为true，则先获取TTF_Text(可能需要创建)，然后设置文本和字体
+    if (is_dirty) {
+        if (!font) {
+            spdlog::warn("getTextSize 获取字体失败: {} 大小 {}", font_id, font_size);
+            return glm::vec2(0.0f, 0.0f);
+        }
 
-    auto text_object = getTTFText(text);
-    if (!text_object) {
-        text_object = createTTFText(text, font);
+        text_object = getTTFText(text);
         if (!text_object) {
-            spdlog::error("getTextSize 创建 TTF_Text 失败: {}", SDL_GetError());
+            text_object = createTTFText(text, font);
+            if (!text_object) {
+                spdlog::error("getTextSize 创建 TTF_Text 失败: {}", SDL_GetError());
+                return glm::vec2(0.0f, 0.0f);
+            }
+        }
+        // 设置文本和字体
+        TTF_SetTextFont(text_object, font);
+        TTF_SetTextString(text_object, text.data(), 0);
+        spdlog::info("getTextSize 重新设置了 TTF_Text 的文本和字体: {}", text);
+    } else {
+        // 如果脏标志为false，则直接获取TTF_Text对象，不需要再设置文本和字体
+        text_object = getTTFText(text);
+        if (!text_object) {
+            spdlog::error("getTextSize 获取 TTF_Text 失败: {}", SDL_GetError());
             return glm::vec2(0.0f, 0.0f);
         }
     }
 
-    TTF_SetTextFont(text_object, font);
-    TTF_SetTextString(text_object, text.data(), 0);
-
+    // 获取文本尺寸
     int width, height;
     TTF_GetTextSize(text_object, &width, &height);
 
@@ -190,7 +216,6 @@ glm::vec2 TextRenderer::getTextSize(const std::string& text, std::string_view fo
 }
 
 TTF_Text* TextRenderer::getTTFText(const std::string& text) {
-    // 把text的地址转化为 uintptr_t 作为缓存键
     auto cach_key = reinterpret_cast<uintptr_t>(&text);
     auto it = text_cache_.find(cach_key);
     if (it != text_cache_.end()) {
