@@ -48,6 +48,8 @@ GameScene::GameScene(engine::core::Context& context,
         spdlog::info("未提供 SessionData，使用默认值。");
     }
     // 这里不再需要清空SessionData中的观察者，Observer在析构时会自动解除联系    
+    // 切换主场景时先清空文本渲染缓存
+    context.getTextRenderer().clearCache();
     spdlog::trace("GameScene 构造完成。");
 }
 
@@ -121,6 +123,14 @@ void GameScene::update(float delta_time) {
 
 void GameScene::render() {
     Scene::render();
+    // 测试一次性文本渲染 (必须在场景绘制结束后调用,否则会被遮挡)
+    if (context_.getInputManager().isActionDown("attack")) {
+        context_.getTextRenderer().drawUIText("Hello, World!", 
+                                              "assets/fonts/VonwaonBitmap-16px.ttf", 
+                                              32, 
+                                              glm::vec2(100.0f, 100.0f), 
+                                              engine::utils::FColor(1.0f, 1.0f, 1.0f, 1.0f));
+    }
 }
 
 void GameScene::handleInput() {

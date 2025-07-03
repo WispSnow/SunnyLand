@@ -36,6 +36,7 @@ TextRenderer::~TextRenderer() {
 void TextRenderer::close()
 {
     if (text_engine_) {
+        clearCache();       // 先清空缓存再销毁TTF_TextEngine
         TTF_DestroyRendererTextEngine(text_engine_);
         text_engine_ = nullptr;
         spdlog::trace("TTF_TextEngine 销毁。");
@@ -43,9 +44,12 @@ void TextRenderer::close()
     TTF_Quit();     // 一定要确保在ResourceManager销毁之后调用
 }
 
-void TextRenderer::drawUIText(std::string_view text, std::string_view font_id, int font_size,
+// --- 一次性绘制的版本 ---
+
+void TextRenderer::drawUIText(std::string&& text, std::string_view font_id, int font_size,
                               const glm::vec2 &position, const engine::utils::FColor &color)
 {
+    spdlog::info("一次性绘制文本: {}", text);
     /* 构造函数已经保证了必要指针不会为空，这里不需要再检查 */
     TTF_Font* font = resource_manager_->getFont(font_id, font_size);
     if (!font) {
@@ -76,17 +80,17 @@ void TextRenderer::drawUIText(std::string_view text, std::string_view font_id, i
     TTF_DestroyText(temp_text_object);
 }
 
-void TextRenderer::drawText(const Camera &camera, std::string_view text, std::string_view font_id, int font_size, 
+void TextRenderer::drawText(const Camera &camera, std::string&& text, std::string_view font_id, int font_size, 
                             const glm::vec2 &position, const engine::utils::FColor &color)
 {
     // 应用相机变换
     glm::vec2 position_screen = camera.worldToScreen(position);
 
     // 用新坐标调用drawUIText即可
-    drawUIText(text, font_id, font_size, position_screen, color);
+    drawUIText(std::move(text), font_id, font_size, position_screen, color);
 }
 
-glm::vec2 TextRenderer::getTextSize(std::string_view text, std::string_view font_id, int font_size) {
+glm::vec2 TextRenderer::getTextSize(std::string&& text, std::string_view font_id, int font_size) {
     /* 构造函数已经保证了必要指针不会为空，这里不需要再检查 */
     TTF_Font* font = resource_manager_->getFont(font_id, font_size);
     if (!font) {
@@ -109,5 +113,106 @@ glm::vec2 TextRenderer::getTextSize(std::string_view text, std::string_view font
 
     return glm::vec2(static_cast<float>(width), static_cast<float>(height));
 } 
+
+// --- 使用缓存绘制的版本 ---
+
+void TextRenderer::drawUIText(const std::string& text, std::string_view font_id, int font_size,
+                              const glm::vec2 &position, const engine::utils::FColor &color)
+{
+    spdlog::trace("使用缓存绘制文本: {}, 缓存数量: {}", text, text_cache_.size());
+    // 获取字体
+    TTF_Font* font = resource_manager_->getFont(font_id, font_size);
+    if (!font) {
+        spdlog::warn("drawUIText 获取字体失败: {} 大小 {}", font_id, font_size);
+        return;
+    }
+    // 获取TTF_Text对象
+    auto text_object = getTTFText(text);
+    if (!text_object) {
+        // 没有找到，则创建一个TTF_Text对象并添加缓存
+        text_object = createTTFText(text, font);
+        if (!text_object) {
+            spdlog::error("drawUIText 创建 TTF_Text 失败: {}", SDL_GetError());
+            return;
+        }
+    }
+
+    // 设置文本和字体（每一帧都设置一次真的合适吗？）
+    TTF_SetTextFont(text_object, font);
+    TTF_SetTextString(text_object, text.data(), 0);
+
+    // 先渲染一次黑色文字模拟阴影
+    TTF_SetTextColorFloat(text_object, 0.0f, 0.0f, 0.0f, 1.0f);
+    if (!TTF_DrawRendererText(text_object, position.x + 2, position.y + 2)) {
+        spdlog::error("drawUIText 绘制临时 TTF_Text 失败: {}", SDL_GetError());
+    }
+
+    // 然后正常绘制
+    TTF_SetTextColorFloat(text_object, color.r, color.g, color.b, color.a);
+    if (!TTF_DrawRendererText(text_object, position.x, position.y)) {
+        spdlog::error("drawUIText 绘制临时 TTF_Text 失败: {}", SDL_GetError());
+    }
+}
+
+void TextRenderer::drawText(const Camera &camera, const std::string& text, std::string_view font_id, int font_size, 
+                            const glm::vec2 &position, const engine::utils::FColor &color)
+{
+    // 应用相机变换
+    glm::vec2 position_screen = camera.worldToScreen(position);
+
+    // 用新坐标调用drawUIText即可
+    drawUIText(text, font_id, font_size, position_screen, color);
+}
+
+glm::vec2 TextRenderer::getTextSize(const std::string& text, std::string_view font_id, int font_size) {
+    TTF_Font* font = resource_manager_->getFont(font_id, font_size);
+    if (!font) {
+        spdlog::warn("getTextSize 获取字体失败: {} 大小 {}", font_id, font_size);
+        return glm::vec2(0.0f, 0.0f);
+    }
+
+    auto text_object = getTTFText(text);
+    if (!text_object) {
+        text_object = createTTFText(text, font);
+        if (!text_object) {
+            spdlog::error("getTextSize 创建 TTF_Text 失败: {}", SDL_GetError());
+            return glm::vec2(0.0f, 0.0f);
+        }
+    }
+
+    TTF_SetTextFont(text_object, font);
+    TTF_SetTextString(text_object, text.data(), 0);
+
+    int width, height;
+    TTF_GetTextSize(text_object, &width, &height);
+
+    return glm::vec2(static_cast<float>(width), static_cast<float>(height));
+}
+
+TTF_Text* TextRenderer::getTTFText(const std::string& text) {
+    // 把text的地址转化为 uintptr_t 作为缓存键
+    auto cach_key = reinterpret_cast<uintptr_t>(&text);
+    auto it = text_cache_.find(cach_key);
+    if (it != text_cache_.end()) {
+        return it->second.get();
+    }
+    // 没有找到，返回空指针
+    return nullptr;
+}
+
+TTF_Text* TextRenderer::createTTFText(const std::string& text, TTF_Font* font) {
+    // 获取缓存键
+    auto cach_key = reinterpret_cast<uintptr_t>(&text);
+
+    // 创建TTF_Text对象
+    TTF_Text* text_object = TTF_CreateText(text_engine_, font, text.data(), 0);
+    if (!text_object) {
+        spdlog::error("createTTFText 创建 TTF_Text 失败: {}", SDL_GetError());
+        return nullptr;
+    }
+    // 添加缓存
+    text_cache_[cach_key] = std::unique_ptr<TTF_Text, TTFTextDeleter>(text_object);
+    return text_object;
+}
 
 } // namespace engine::render 
