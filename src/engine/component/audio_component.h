@@ -21,14 +21,13 @@ namespace engine::component {
 class AudioComponent final: public Component {
     friend class engine::object::GameObject;
 private:
-    engine::audio::AudioPlayer* audio_player_;      ///< @brief 音频播放器的非拥有指针
     engine::render::Camera* camera_;                ///< @brief 相机的非拥有指针，用于音频空间定位
     engine::component::TransformComponent* transform_ = nullptr;    ///< @brief 缓存变换组件
 
     std::unordered_map<std::string, std::string> sound_id_to_path_; ///< @brief 音效id 到路径的映射表
 
 public:
-    AudioComponent(engine::audio::AudioPlayer* audio_player, engine::render::Camera* camera);
+    explicit AudioComponent(engine::render::Camera* camera);
     ~AudioComponent() override = default;
 
     // 禁止拷贝和移动

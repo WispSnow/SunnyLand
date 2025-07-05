@@ -29,7 +29,7 @@ class SceneManager;
 }
 
 namespace engine::audio {
-class AudioPlayer;
+class IAudioPlayer;
 }
 
 namespace engine::core {        // 命名空间的最佳实践：与文件路径一致
@@ -61,7 +61,7 @@ private:
     std::unique_ptr<engine::core::Context> context_;
     std::unique_ptr<engine::scene::SceneManager> scene_manager_;
     std::unique_ptr<engine::physics::PhysicsEngine> physics_engine_;
-    std::unique_ptr<engine::audio::AudioPlayer> audio_player_;
+    std::unique_ptr<engine::audio::IAudioPlayer> audio_player_;
     std::unique_ptr<engine::core::GameState> game_state_;
 
 public:

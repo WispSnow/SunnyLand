@@ -5,6 +5,7 @@
 #include "game_state.h"
 #include "../resource/resource_manager.h"
 #include "../audio/audio_player.h"
+#include "../audio/audio_locator.h"
 #include "../render/renderer.h"
 #include "../render/camera.h"
 #include "../render/text_renderer.h"
@@ -112,6 +113,9 @@ void GameApp::close() {
     // 先关闭场景管理器，确保所有场景都被清理
     scene_manager_->close();
 
+    // 重置服务定位器
+    engine::audio::AudioLocator::provide(nullptr);
+
     // 为了确保正确的销毁顺序，有些智能指针对象也需要手动管理
     resource_manager_.reset();
 
@@ -201,6 +205,7 @@ bool GameApp::initAudioPlayer()
         audio_player_ = std::make_unique<engine::audio::AudioPlayer>(resource_manager_.get());
         audio_player_->setMusicVolume(config_->music_volume_);      // 设置背景音乐音量
         audio_player_->setSoundVolume(config_->sound_volume_);      // 设置音效音量
+        engine::audio::AudioLocator::provide(audio_player_.get());  // 提供音频播放器
     } catch (const std::exception& e) {
         spdlog::error("初始化音频播放器失败: {}", e.what());
         return false;
@@ -287,8 +292,7 @@ bool GameApp::initContext()
                                                            *camera_, 
                                                            *text_renderer_,
                                                            *resource_manager_, 
-                                                           *physics_engine_, 
-                                                           *audio_player_,
+                                                           *physics_engine_,
                                                            *game_state_);
     } catch (const std::exception& e) {
         spdlog::error("初始化上下文失败: {}", e.what());

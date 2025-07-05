@@ -9,7 +9,7 @@
 #include "../../engine/ui/ui_image.h"
 #include "../../engine/ui/ui_button.h"
 #include "../../engine/ui/ui_label.h"
-#include "../../engine/audio/audio_player.h"
+#include "../../engine/audio/audio_locator.h"
 #include "../../engine/scene/level_loader.h"
 #include "../../engine/scene/scene_manager.h"
 #include "../../engine/utils/math.h"
@@ -70,7 +70,7 @@ void TitleScene::createUI() {
     }
 
     // 设置背景音乐
-    context_.getAudioPlayer().playMusic("assets/audio/platformer_level03_loop.ogg");
+    engine::audio::AudioLocator::get().playMusic("assets/audio/platformer_level03_loop.ogg");
 
     // 创建标题图片 (假设不知道大小)
     auto title_image = std::make_unique<engine::ui::UIImage>("assets/textures/UI/title-screen.png");

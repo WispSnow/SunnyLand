@@ -252,8 +252,7 @@ void ObjectBuilder::buildAudio()
             return;  // 跳过此对象
         }
         // 添加AudioComponent
-        auto* audio_component = game_object_->addComponent<engine::component::AudioComponent>(&context_.getAudioPlayer(),
-                                                                                              &context_.getCamera());
+        auto* audio_component = game_object_->addComponent<engine::component::AudioComponent>(&context_.getCamera());
         // 添加音效到 AudioComponent
         addSound(sound_json, audio_component);
     }

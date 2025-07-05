@@ -1,16 +1,16 @@
 #include "audio_component.h"
 #include "transform_component.h"
 #include "../object/game_object.h"
-#include "../audio/audio_player.h"
+#include "../audio/audio_locator.h"
 #include "../render/camera.h"
 #include <spdlog/spdlog.h>
 
 namespace engine::component {
 
-AudioComponent::AudioComponent(engine::audio::AudioPlayer *audio_player, engine::render::Camera *camera)
-    : audio_player_(audio_player), camera_(camera)
+AudioComponent::AudioComponent(engine::render::Camera *camera)
+    : camera_(camera)
 {
-    if (!audio_player_ || !camera_) {
+    if (!camera_) {
         spdlog::error("AudioComponent 初始化失败: 音频播放器或相机为空");
     }
 }
@@ -42,9 +42,9 @@ void AudioComponent::playSound(std::string_view sound_id, int channel, bool use_
             spdlog::debug("AudioComponent::playSound: 音效 '{}' 超出范围，不播放。", sound_id);
             return; // 超出范围，不播放
         }
-        audio_player_->playSound(sound_path, channel);
+        engine::audio::AudioLocator::get().playSound(sound_path, channel);
     } else {    // 不使用空间定位
-        audio_player_->playSound(sound_path, channel);
+        engine::audio::AudioLocator::get().playSound(sound_path, channel);
     }
 }
 

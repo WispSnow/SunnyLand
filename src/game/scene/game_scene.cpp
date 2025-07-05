@@ -19,7 +19,7 @@
 #include "../../engine/render/camera.h"
 #include "../../engine/render/animation.h"
 #include "../../engine/render/text_renderer.h"
-#include "../../engine/audio/audio_player.h"
+#include "../../engine/audio/audio_locator.h"
 #include "../../engine/ui/ui_manager.h"
 #include "../../engine/ui/ui_panel.h"
 #include "../../engine/ui/ui_label.h"
@@ -98,7 +98,7 @@ void GameScene::init() {
     }
 
     // 播放背景音乐 (循环，淡入1秒)
-    context_.getAudioPlayer().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
+    engine::audio::AudioLocator::get().playMusic("assets/audio/hurry_up_and_run.ogg", true, 1000);
 
     Scene::init();
     spdlog::trace("GameScene 初始化完成。");
@@ -356,7 +356,7 @@ void GameScene::playerVSEnemyCollision(engine::object::GameObject *player, engin
         // 玩家跳起效果
         player->getComponent<engine::component::PhysicsComponent>()->velocity_.y = -300.0f;  // 向上跳起
         // 播放音效 (此音效完全可以放在玩家的音频组件中，这里示例另一种用法：直接用AudioPlayer播放，传入文件路径)
-        context_.getAudioPlayer().playSound("assets/audio/punch2a.mp3");
+        engine::audio::AudioLocator::get().playSound("assets/audio/punch2a.mp3");
         // 加分 (这里直接调用SessionData的addScore方法，它会自动通知UI更新)
         game_session_data_->addScore(10);
     }
@@ -377,7 +377,7 @@ void GameScene::playerVSItemCollision(engine::object::GameObject*, engine::objec
     item->setNeedRemove(true);  // 标记道具为待删除状态
     auto item_aabb = item->getComponent<engine::component::ColliderComponent>()->getWorldAABB();
     createEffect(item_aabb.position + item_aabb.size / 2.0f, item->getTag());  // 创建特效
-    context_.getAudioPlayer().playSound("assets/audio/poka01.mp3");         // 播放音效
+    engine::audio::AudioLocator::get().playSound("assets/audio/poka01.mp3");         // 播放音效
 }
 
 void GameScene::toNextLevel(engine::object::GameObject *trigger)

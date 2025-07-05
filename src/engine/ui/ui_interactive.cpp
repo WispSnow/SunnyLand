@@ -3,7 +3,7 @@
 #include "../core/context.h"
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
-#include "../audio/audio_player.h"
+#include "../audio/audio_locator.h"
 #include <spdlog/spdlog.h>
 
 namespace engine::ui {
@@ -54,7 +54,7 @@ void UIInteractive::addSound(std::string_view name, std::string_view path)
 void UIInteractive::playSound(std::string_view name)
 {
     if (sounds_.find(std::string(name)) != sounds_.end()) {
-        context_.getAudioPlayer().playSound(sounds_[std::string(name)]);
+        engine::audio::AudioLocator::get().playSound(sounds_[std::string(name)]);
     } else {
         spdlog::error("Sound '{}' 未找到", name);
     }

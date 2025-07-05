@@ -5,12 +5,9 @@
 #include "../../engine/input/input_manager.h"
 #include "../../engine/scene/scene_manager.h"
 #include "../../engine/ui/ui_manager.h"
-#include "../../engine/ui/ui_panel.h"
 #include "../../engine/ui/ui_label.h"
 #include "../../engine/ui/ui_button.h"
 #include "../../engine/core/game_state.h"
-#include "../../engine/audio/audio_player.h"
-#include "../../engine/utils/math.h"
 #include "../data/session_data.h"
 #include <spdlog/spdlog.h>
 
