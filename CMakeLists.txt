@@ -33,6 +33,7 @@ set(SOURCES
     src/main.cpp
     src/engine/audio/audio_player.cpp
     src/engine/audio/audio_locator.cpp
+    src/engine/audio/log_audio_player.h
     src/engine/core/game_app.cpp
     src/engine/core/time.cpp
     src/engine/core/config.cpp
@@ -111,6 +112,23 @@ endif()
 
 # 添加可执行文件, 使用配置好的 "SOURCES" 变量
 add_executable(${TARGET} ${SOURCES})
+
+# 使用 option() 创建一个用户开关来控制音频日志功能
+option(ENABLE_AUDIO_LOG "启用音频日志" ON)
+
+# 检查开关的状态
+if(ENABLE_AUDIO_LOG)
+    # 打印状态消息，方便调试
+    message(STATUS "音频日志已启用 (ENABLE_AUDIO_LOG=ON)")
+
+    # 为目标添加编译定义 ENABLE_AUDIO_LOG
+    # 这等同于在编译时添加 -DENABLE_AUDIO_LOG 标志
+    # PRIVATE: 此定义仅用于编译目标本身
+    target_compile_definitions(${TARGET} PRIVATE ENABLE_AUDIO_LOG)
+else()
+    message(STATUS "音频日志已禁用 (ENABLE_AUDIO_LOG=OFF)")
+endif()
+
 
 # 链接库
 target_link_libraries(${TARGET}

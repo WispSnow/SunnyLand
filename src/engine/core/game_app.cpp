@@ -5,6 +5,7 @@
 #include "game_state.h"
 #include "../resource/resource_manager.h"
 #include "../audio/audio_player.h"
+#include "../audio/log_audio_player.h"
 #include "../audio/audio_locator.h"
 #include "../render/renderer.h"
 #include "../render/camera.h"
@@ -205,6 +206,10 @@ bool GameApp::initAudioPlayer()
         audio_player_ = std::make_unique<engine::audio::AudioPlayer>(resource_manager_.get());
         audio_player_->setMusicVolume(config_->music_volume_);      // 设置背景音乐音量
         audio_player_->setSoundVolume(config_->sound_volume_);      // 设置音效音量
+#ifdef ENABLE_AUDIO_LOG
+        // 把原始的 audio_player_ 换成 LogAudioPlayer
+        audio_player_ = std::make_unique<engine::audio::LogAudioPlayer>(std::move(audio_player_));
+#endif
         engine::audio::AudioLocator::provide(audio_player_.get());  // 提供音频播放器
     } catch (const std::exception& e) {
         spdlog::error("初始化音频播放器失败: {}", e.what());
