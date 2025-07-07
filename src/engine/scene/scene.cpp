@@ -36,17 +36,25 @@ void Scene::update(float delta_time) {
         context_.getCamera().update(delta_time);
     }
 
-    // 更新所有游戏对象，并删除需要移除的对象
-    for (auto it = game_objects_.begin(); it != game_objects_.end();) {
-        if (*it && !(*it)->isNeedRemove()) {    // 正常更新游戏对象
-            (*it)->update(delta_time, context_);
-            ++it;
+    bool need_remove = false;  // 设定一个标志，用于判断是否需要移除对象
+
+    // 更新所有游戏对象，先略过需要移除的对象
+    for (auto& obj : game_objects_) {
+        if (obj && !obj->isNeedRemove()) {
+            obj->update(delta_time, context_);
         } else {
-            if (*it) {      // 安全删除需要移除的对象
-                (*it)->clean();
-            }
-            it = game_objects_.erase(it);   // 删除需要移除的对象，智能指针自动管理内存
+            need_remove = true;
+            if (obj) obj->clean();  // 如果对象需要移除，则先调用clean方法
+            else spdlog::warn("尝试更新一个空的游戏对象指针。");
         }
+    }
+
+    if (need_remove) {
+        // 使用C++20新添加的erase_if删除需要移除的对象，比使用erase - remove_if更简洁
+        // NOTE: 用此语句则没有机会调用clean方法，因此要在update中先调用clean方法
+        std::erase_if(game_objects_, [](const std::unique_ptr<engine::object::GameObject>& obj) {
+            return !obj || obj->isNeedRemove();
+        });
     }
 
     // 更新UI管理器
@@ -72,17 +80,13 @@ void Scene::handleInput() {
     // 处理UI管理器输入
     if (ui_manager_->handleInput(context_)) return;   // 如果输入事件被UI处理则返回，不再处理游戏对象输入
     
-    // 遍历所有游戏对象，并删除需要移除的对象
-    for (auto it = game_objects_.begin(); it != game_objects_.end();) {
-        if (*it && !(*it)->isNeedRemove()) {
-            (*it)->handleInput(context_);
-            ++it;
-        } else {
-            // 安全删除需要移除的对象
-            if (*it) (*it)->clean();
-            it = game_objects_.erase(it);
+    // 遍历所有游戏对象，略过需要移除的对象
+    for (auto& obj : game_objects_) {
+        if (obj && !obj->isNeedRemove()) {
+            obj->handleInput(context_);
         }
     }
+    // 不在这里移除，以免浪费算力。在update中移除
 }
 
 void Scene::clean() {
