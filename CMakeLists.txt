@@ -1,34 +1,53 @@
-# 标题
+# ============================================
+# 项目主配置文件
+# ============================================
 cmake_minimum_required(VERSION 3.10.0)
 project(SunnyLand VERSION 0.1.0 LANGUAGES C CXX)
 
-# 设置C++标准
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# ============================================
+# 基础配置
+# ============================================
 
-# 设置编译选项
-if (MSVC)
-    add_compile_options(/W4)
-else()
-    add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# 指定搜索路径（用于find_package在编译期查找库）
+set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/prebuilt)
 
-# 设置编译输出目录
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
-
+# 指定目标名称
 set(TARGET ${PROJECT_NAME}-${CMAKE_SYSTEM_NAME})
 
-# 查找并载入Cmake预设
-find_package(SDL3 REQUIRED)
-find_package(SDL3_image REQUIRED)
-find_package(SDL3_mixer REQUIRED)
-find_package(SDL3_ttf REQUIRED)
-find_package(glm REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(spdlog REQUIRED)
+# 依赖库默认链接类型：ON = 动态链接(.dll/.so/.dylib)，OFF = 静态链接(.lib/.a)
+# 注意：可以在Dependencies.cmake中为每个库单独指定
+option(BUILD_SHARED_LIBS "依赖库默认编译为动态库" OFF)
 
-# 设置通用源文件
+# ============================================
+# 引入模块化配置
+# ============================================
+
+# 编译器设置（C++标准、编译选项等）
+include(cmake/CompilerSettings.cmake)
+
+# 运行时路径配置（RPATH）
+include(cmake/RuntimePath.cmake)
+
+# 依赖管理
+include(cmake/Dependencies.cmake)
+
+# 构建辅助函数
+include(cmake/BuildHelpers.cmake)
+
+# 项目信息打印
+include(cmake/ProjectInfo.cmake)
+
+# ============================================
+# 设置项目依赖
+# ============================================
+
+# 调用依赖配置函数（定义在Dependencies.cmake中）
+setup_project_dependencies()
+
+# ============================================
+# 项目源文件
+# ============================================
+
 set(SOURCES
     src/main.cpp
     src/engine/audio/audio_player.cpp
@@ -92,28 +111,45 @@ set(SOURCES
     src/game/data/session_data.cpp
 )
 
-# 根据平台向"通用源文件"追加平台专属的文件
+# Windows平台添加资源文件
 if(WIN32)
-    # 如果是 Windows 平台, 将资源文件追加到源文件列表
     list(APPEND SOURCES resources.rc)
 endif()
-# TODO: MacOS 和 Linux 平台
 
-# 添加可执行文件, 使用配置好的 "SOURCES" 变量
+# ============================================
+# 可执行文件配置
+# ============================================
+
+# 创建可执行文件
 add_executable(${TARGET} ${SOURCES})
 
-# 链接库
+# 链接所有依赖库
 target_link_libraries(${TARGET}
-                        ${SDL3_LIBRARIES}
-                        SDL3_image::SDL3_image
-                        SDL3_mixer::SDL3_mixer
-                        SDL3_ttf::SDL3_ttf
-                        glm::glm
-                        nlohmann_json::nlohmann_json
-                        spdlog::spdlog
-                        )
+    SDL3::SDL3
+    SDL3_image::SDL3_image
+    SDL3_mixer::SDL3_mixer
+    SDL3_ttf::SDL3_ttf
+    glm::glm
+    nlohmann_json::nlohmann_json
+    spdlog::spdlog
+)
 
-# 不要弹出控制台窗口
-if (MSVC)
-    target_link_options(${TARGET} PRIVATE "/SUBSYSTEM:WINDOWS")
-endif()
+# ============================================
+# 应用配置
+# ============================================
+
+# 设置编译选项（定义在CompilerSettings.cmake中）
+setup_compiler_options(${TARGET})
+
+# 配置资源文件复制（定义在BuildHelpers.cmake中）
+setup_asset_copy(${TARGET})
+
+# 配置Windows DLL复制（定义在BuildHelpers.cmake中）
+setup_windows_dll_copy(${TARGET})
+
+# ============================================
+# 打印配置信息
+# ============================================
+
+# 打印项目配置完成信息（定义在ProjectInfo.cmake中）
+print_project_info(${TARGET})

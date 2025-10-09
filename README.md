@@ -24,7 +24,16 @@ P / ESC - show menu and pause;
 * [nlohmann-json](https://github.com/nlohmann/json)
 * [spdlog](https://github.com/gabime/spdlog)
 
-See [wiki](../../wiki) for detailed building guide (in Chinese).
+## How to build
+Dependencies will be automatically downloaded by Git FetchContent to make building quite easy:
+```bash
+git clone https://github.com/WispSnow/SunnyLand.git
+cd SunnyLand
+cmake -S . -B build
+cmake --build build
+```
+
+If you encounter trouble downloading from GitHub (especially on networks in mainland China), please refer to the [wiki](../../wiki) for an alternative building guide.
 
 # Credits
 - sprite

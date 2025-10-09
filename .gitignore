@@ -3,10 +3,13 @@
 **/.DS_Store
 
 # IDE
-.vscode/
 .config/
 .idea/
 .cursor/
+
+# external
+external/
+prebuilt/
 
 # build
 build/
