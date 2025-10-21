@@ -24,6 +24,7 @@ ResourceManager::ResourceManager(SDL_Renderer* renderer) {
 void ResourceManager::clear() {
     font_manager_->clearFonts();
     audio_manager_->clearSounds();
+    audio_manager_->clearMusic();
     texture_manager_->clearTextures();
     spdlog::trace("ResourceManager 中的资源通过 clear() 清空。");
 }
