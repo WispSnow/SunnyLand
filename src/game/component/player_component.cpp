@@ -49,7 +49,7 @@ void PlayerComponent::init() {
 
 bool PlayerComponent::takeDamage(int damage) {
     if (is_dead_ || !health_component_ || damage <= 0) {
-        spdlog::warn("玩家已死亡或却少必要组件，并未造成伤害。");
+        spdlog::warn("玩家已死亡或缺少必要组件，并未造成伤害。");
         return false;
     }
 

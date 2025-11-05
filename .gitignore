@@ -20,6 +20,7 @@ cmake-build-*/
 
 # msc
 .clang-tidy
+.cache/
 
 # Prerequisites
 *.d
