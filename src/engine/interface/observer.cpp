@@ -17,13 +17,14 @@ void Observer::removeSubject(Subject* subject) {
 }
 
 void Observer::clearSubjects() {
-    for (auto* subject : subjects_) {
+    // 使用while循环，先弹出再移除。避免使用for循环，因为循环中会修改容器大小，导致迭代器失效
+    while (!subjects_.empty()) {
+        auto* subject = subjects_.back();
+        subjects_.pop_back();
         if (subject) {
-            subject->removeObserver(this);  // 让所有 Subject 移除对自身的引用
-            subject = nullptr;
+            subject->removeObserver(this);  // 触发 Subject 解除双向联系
         }
     }
-    subjects_.clear();
 }
 
 } // namespace engine::interface
