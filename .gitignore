@@ -1,0 +1,7 @@
+*
+!.gitignore
+!index.html
+!*.js
+!*.wasm
+!*.data
+!.nojekyll
