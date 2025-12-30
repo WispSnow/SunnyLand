@@ -1,7 +1,7 @@
 [English](README.md) | [简体中文](README-ZN.md)
 
 # SunnyLand
-**SunnyLand** is a cross-platfrom platformer game developed in C++ with SDL3, glm, nlohmann-json and Tiled.
+**SunnyLand** is a cross-platform platformer game developed in C++ with SDL3, glm, nlohmann-json and Tiled.
 
 > This project is a teaching demonstration project; it is the 3rd episode in a series of tutorials titled "[C++ 游戏开发之旅](https://cppgamedev.top/)".
 
