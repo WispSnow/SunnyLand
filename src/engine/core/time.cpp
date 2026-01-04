@@ -31,6 +31,8 @@ void Time::limitFrameRate(float current_delta_time) {
         Uint64 ns_to_wait = static_cast<Uint64>(time_to_wait * 1000000000.0);
         SDL_DelayNS(ns_to_wait);
         delta_time_ = static_cast<double>(SDL_GetTicksNS() - last_time_) / 1000000000.0;
+    } else {    // 否则，直接使用当前帧耗费的时间
+        delta_time_ = static_cast<double>(current_delta_time);
     }
 }
 
