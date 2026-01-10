@@ -30,31 +30,39 @@ void Scene::init() {
 void Scene::update(float delta_time) {
     if (!is_initialized_) return;
 
+    // 先移除上一帧已经标记删除的对象，避免物理更新产生的碰撞事件持有悬空指针
+    bool need_remove = false;  // 设定一个标志，用于判断是否需要移除对象
+    for (auto& obj : game_objects_) {
+        if (!obj) {
+            need_remove = true;
+            spdlog::warn("场景 '{}' 中存在空的游戏对象指针，将在本帧清理。", scene_name_);
+            continue;
+        }
+        if (obj->isNeedRemove()) {
+            need_remove = true;
+            obj->clean();
+        }
+    }
+    if (need_remove) {
+        // NOTE: 需要先 clean 再 erase，确保组件(如 PhysicsComponent)能正确反注册
+        std::erase_if(game_objects_, [](const std::unique_ptr<engine::object::GameObject>& obj) {
+            return !obj || obj->isNeedRemove();
+        });
+    }
+
     // 只有游戏进行中，才需要更新物理引擎和相机
     if (context_.getGameState().isPlaying()){
         context_.getPhysicsEngine().update(delta_time);
         context_.getCamera().update(delta_time);
     }
 
-    bool need_remove = false;  // 设定一个标志，用于判断是否需要移除对象
-
     // 更新所有游戏对象，先略过需要移除的对象
     for (auto& obj : game_objects_) {
         if (obj && !obj->isNeedRemove()) {
             obj->update(delta_time, context_);
-        } else {
-            need_remove = true;
-            if (obj) obj->clean();  // 如果对象需要移除，则先调用clean方法
-            else spdlog::warn("尝试更新一个空的游戏对象指针。");
+        } else if (!obj) {
+            spdlog::warn("尝试更新一个空的游戏对象指针。");
         }
-    }
-
-    if (need_remove) {
-        // 使用C++20新添加的erase_if删除需要移除的对象，比使用erase - remove_if更简洁
-        // NOTE: 用此语句则没有机会调用clean方法，因此要在update中先调用clean方法
-        std::erase_if(game_objects_, [](const std::unique_ptr<engine::object::GameObject>& obj) {
-            return !obj || obj->isNeedRemove();
-        });
     }
 
     // 更新UI管理器
