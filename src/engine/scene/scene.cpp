@@ -30,6 +30,12 @@ void Scene::init() {
 void Scene::update(float delta_time) {
     if (!is_initialized_) return;
 
+    // 只有游戏进行中，才需要更新物理引擎和相机
+    if (context_.getGameState().isPlaying()){
+        context_.getPhysicsEngine().update(delta_time);
+        context_.getCamera().update(delta_time);
+    }
+
     bool need_remove = false;  // 设定一个标志，用于判断是否需要移除对象
 
     // 更新所有游戏对象，先略过需要移除的对象
@@ -49,12 +55,6 @@ void Scene::update(float delta_time) {
         std::erase_if(game_objects_, [](const std::unique_ptr<engine::object::GameObject>& obj) {
             return !obj || obj->isNeedRemove();
         });
-    }
-
-    // 只有游戏进行中，才需要更新物理引擎和相机
-    if (context_.getGameState().isPlaying()){
-        context_.getPhysicsEngine().update(delta_time);
-        context_.getCamera().update(delta_time);
     }
 
     // 更新UI管理器
