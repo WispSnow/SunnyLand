@@ -1,6 +1,7 @@
 #include "time.h"
 #include <spdlog/spdlog.h>
 #include <SDL3/SDL_timer.h>    // 用于 SDL_GetTicksNS()
+#include <algorithm>
 
 namespace engine::core {
 
@@ -32,7 +33,8 @@ void Time::limitFrameRate(float current_delta_time) {
         SDL_DelayNS(ns_to_wait);
         delta_time_ = static_cast<double>(SDL_GetTicksNS() - last_time_) / 1000000000.0;
     } else {    // 否则，直接使用当前帧耗费的时间
-        delta_time_ = static_cast<double>(current_delta_time);
+        // 限制最大 delta time 为 0.1秒 (即最低 10 FPS)，防止刚启动或卡顿时的物理穿模
+        delta_time_ = std::min(static_cast<double>(current_delta_time), 0.1);
     }
 }
 

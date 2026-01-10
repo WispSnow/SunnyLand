@@ -88,7 +88,6 @@ public:
 
     engine::core::Context& getContext() const { return context_; }                  ///< @brief 获取上下文引用
     engine::scene::SceneManager& getSceneManager() const { return scene_manager_; } ///< @brief 获取场景管理器引用
-    std::vector<std::unique_ptr<engine::object::GameObject>>& getGameObjects() { return game_objects_; } ///< @brief 获取场景中的游戏对象
 
 protected:
     void processPendingAdditions();     ///< @brief 处理待添加的游戏对象。（每轮更新的最后调用）
